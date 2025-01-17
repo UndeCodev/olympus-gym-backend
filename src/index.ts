@@ -5,6 +5,7 @@ import { PORT } from './config/config'
 import { authRouter } from './routes/auth'
 import { errorHandler } from './exceptions/ErrorHandler'
 import { AppError } from './exceptions/AppError'
+import { faqsRouter } from './routes/faqs'
 
 const app = express()
 
@@ -13,6 +14,7 @@ app.use(cookieParser())
 
 // Routes
 app.use('/api/auth', authRouter)
+app.use('/api/faqs', faqsRouter)
 
 app.get('/', (_req: Request, res: Response) => {
   res.send('Hello World')

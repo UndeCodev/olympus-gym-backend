@@ -14,6 +14,13 @@ export interface User {
   password: string
 }
 
+//Faqs interface
+export interface Faqs {
+  id: number,
+  question: string,
+  answer: string,
+}
+
 export type NonSensitiveUserData = Omit<User, 'password'>
 export type AuthUserData = Pick<User, 'email' | 'password'>
 
