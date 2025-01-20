@@ -5,6 +5,7 @@ import { validatePartialUser, validateUser } from '../schemas/Users'
 import { UserModel } from '../models/user'
 import { JWT_SECRET, NODE_ENV } from '../config/config'
 import { HttpCode } from '../enums'
+import { AppError } from '../exceptions/AppError'
 
 // Validates user inputs
 export class AuthController {
@@ -45,7 +46,11 @@ export class AuthController {
       // Call the model to login the user
       const user = await UserModel.loginUser(resultValidation.data)
 
-      const token = jwt.sign({ id: user }, String(JWT_SECRET))
+      if (user instanceof AppError) throw user
+
+      const token = jwt.sign({ id: user.id, rol: user.role }, String(JWT_SECRET), {
+        expiresIn: '1h'
+      })
 
       res.cookie('access_token', token, {
         httpOnly: true,
@@ -57,5 +62,11 @@ export class AuthController {
     } catch (error) {
       next(error)
     }
+  }
+
+  static async logout (_req: Request, res: Response, _next: NextFunction): Promise<void> {
+    res
+      .clearCookie('access_token')
+      .json({ message: 'logout successfull' })
   }
 }

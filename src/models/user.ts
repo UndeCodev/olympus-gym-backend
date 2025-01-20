@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
-import { AuthUserData, NonSensitiveUserData, User } from '../types'
+import { AuthLoginDataUser, NonSensitiveUserData, User } from '../types'
 import { SALT_ROUNDS } from '../config/config'
 import { AppError } from '../exceptions/AppError'
 import { HttpCode } from '../enums'
@@ -8,6 +8,10 @@ import { HttpCode } from '../enums'
 const prisma = new PrismaClient()
 
 export class UserModel {
+  hello (): void {
+
+  }
+
   static async findUserByEmail (email: string): Promise<User | null> {
     return await prisma.user.findUnique({
       where: {
@@ -46,7 +50,7 @@ export class UserModel {
     return userCreated
   }
 
-  static async loginUser (input: AuthUserData): Promise<NonSensitiveUserData | AppError> {
+  static async loginUser (input: AuthLoginDataUser): Promise<NonSensitiveUserData | AppError> {
     const { email, password } = input
 
     const userFound = await this.findUserByEmail(email)
@@ -55,7 +59,7 @@ export class UserModel {
       throw new AppError({
         name: 'AuthError',
         httpCode: HttpCode.NOT_FOUND,
-        description: `User with the email ${email} doesn't exists`
+        description: `El usuario con el correo ${email} no está registrado.`
       })
     }
 
@@ -75,7 +79,8 @@ export class UserModel {
       lastName: userFound.lastName,
       phoneNumber: userFound.phoneNumber,
       birthDate: userFound.birthDate,
-      email: userFound.email
+      email: userFound.email,
+      role: userFound.role
     }
 
     return user

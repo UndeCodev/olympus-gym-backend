@@ -7,10 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model roles {
-  id       Int        @id @default(autoincrement())
-  roleName roles_name @default(USER)
-  user     user[]
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
 }
 
 model user {
@@ -23,16 +23,7 @@ model user {
   password         String
   emailVerified    Boolean   @default(false)
   twoFactorEnabled Boolean   @default(false)
-  roleId           Int       @default(1)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime?
-  roles            roles     @relation(fields: [roleId], references: [id], map: "User_roleId_fkey")
-
-  @@index([roleId], map: "User_roleId_fkey")
-}
-
-enum roles_name {
-  USER
-  ADMIN
-  MODERATOR
+  role             Role      @default(USER)
 }
