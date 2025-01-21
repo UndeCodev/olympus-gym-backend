@@ -7,13 +7,34 @@ import { HttpCode } from "../enums";
 const prisma = new PrismaClient()
 
 export class FaqsModel {
+
+    static async getAllFaqs (){
+        try {
+            const faqs = await prisma.faqs.findMany()
+            if(!faqs || faqs.length === 0){
+                const res = {
+                    message: 'No FAQs found'
+                }
+                return res
+            }
+            return faqs
+        } catch (error) {
+            throw new AppError({
+                name: 'AuthError',
+                httpCode: HttpCode.BAD_REQUEST,
+                description: `Error during get All Faqs`
+            })
+        }
+    }
+
     static async createFaq (input: Faqs) {
-        const {question} = input
+        const {question, answer} = input
 
         try {
             const faqCreated = await prisma.faqs.create({
                 data:{
-                    question
+                    question,
+                    answer
                 }
             })
             return faqCreated

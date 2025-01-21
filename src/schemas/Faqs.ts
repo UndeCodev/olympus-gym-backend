@@ -10,11 +10,18 @@ export const faqCreationSchema = z.object({
         })
         .min(5, 'Question must be at least 5 characters long')
         .trim(),
+    answer: z
+        .string({
+            invalid_type_error: 'Answer must be a string',
+            required_error: 'Answer is required',
+        })
+        .min(1, 'Question must be at least 5 characters long')
+        .trim(),
 });
 
 // Esquema para actualizar una FAQ (permite actualizar solo la respuesta)
 export const faqUpdateSchema = z.object({
-    answer: z
+    question: z
         .string({
             invalid_type_error: 'Answer must be a string',
             required_error: 'Answer is required',

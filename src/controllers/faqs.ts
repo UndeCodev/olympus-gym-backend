@@ -6,11 +6,23 @@ import { FaqsModel } from "../models/faqs";
 
 export class FaqsController {
 
-    static async createFaq (req: Request, res: Response, next: NextFunction): Promise<void>{
+    static async getFaqs(_req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const result = await FaqsModel.getAllFaqs()
+            res.json({
+                faqs: result
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+    static async createFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
         const resultValidationInputData = validateFaqCreation(req.body)
 
-        if(!resultValidationInputData.success){
-            res.status(400).json({
+        if (!resultValidationInputData.success) {
+            res.status(HttpCode.BAD_REQUEST).json({
                 message: 'Validation FAQ error.',
                 errors: resultValidationInputData.error.format()
             })
@@ -28,12 +40,12 @@ export class FaqsController {
         }
     }
 
-    static async updateFaq (req: Request, res: Response, next: NextFunction): Promise<void>{
-        
+    static async updateFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
+
         //get id
         const id = parseInt(req.params.id)
-        if(isNaN(id)){
-            res.status(400).json({
+        if (isNaN(id)) {
+            res.status(HttpCode.BAD_REQUEST).json({
                 message: 'Invalid ID'
             })
             return
@@ -42,8 +54,8 @@ export class FaqsController {
         //validate id existing in database
         try {
             const resultValidationIdDatabase = await FaqsModel.findIdDatabase(id)
-            if('message' in resultValidationIdDatabase){
-                res.status(400).json({
+            if ('message' in resultValidationIdDatabase) {
+                res.status(HttpCode.BAD_REQUEST).json({
                     message: resultValidationIdDatabase.message
                 })
                 return
@@ -54,8 +66,8 @@ export class FaqsController {
 
         const resultValidationInputData = validateFaqUpdate(req.body)
 
-        if(!resultValidationInputData.success){
-            res.status(400).json({
+        if (!resultValidationInputData.success) {
+            res.status(HttpCode.BAD_REQUEST).json({
                 message: 'Update FAQ error.',
                 errors: resultValidationInputData.error.format()
             })
