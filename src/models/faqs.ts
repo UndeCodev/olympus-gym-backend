@@ -27,6 +27,31 @@ export class FaqsModel {
         }
     }
 
+    static async getFaqsInRange(start: number, end: number){
+        try {
+            const skip = start-1
+            const take = end - start + 1
+
+            const faqs = await prisma.faqs.findMany({
+                skip: skip,
+                take: take
+            })
+            if(faqs.length === 0 || !faqs){
+                const res = {
+                    message: 'No FAQs found'
+                }
+                return res
+            }
+            return faqs
+        } catch (error) {
+            throw new AppError({
+                name: 'AuthError',
+                httpCode: HttpCode.BAD_REQUEST,
+                description: `Error during get faqs in range ${start}, ${end}`
+            })
+        }
+    }
+
     static async createFaq (input: Faqs) {
         const {question, answer} = input
 

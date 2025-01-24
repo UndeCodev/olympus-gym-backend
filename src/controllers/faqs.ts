@@ -17,6 +17,31 @@ export class FaqsController {
         }
     }
 
+    static async getFaqsRange(req: Request, res: Response, next: NextFunction){
+        const data = req.body
+        const range = {
+            start: parseInt(data.start),
+            end: parseInt(data.end)
+        }
+        const maxRange = range.end - range.start
+        
+        if(maxRange<=5){
+            try {
+                const result = await FaqsModel.getFaqsInRange(range.start, range.end)
+                res.json({
+                    faqs: result
+                })
+            } catch (error) {
+                next(error)
+            }
+        }else {
+            res.status(HttpCode.BAD_REQUEST).json({
+                meesage: 'the range for listing FAQs should be a minimum of 1 and a maximum of 5.',
+            })
+        }
+        
+    }
+
 
     static async createFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
         const resultValidationInputData = validateFaqCreation(req.body)

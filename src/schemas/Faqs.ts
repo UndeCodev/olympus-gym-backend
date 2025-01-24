@@ -19,6 +19,31 @@ export const faqCreationSchema = z.object({
         .trim(),
 });
 
+//validacion para obtener un rango de FAQs 
+export const validateRangeInFAQs = z.object({
+    start: z
+        .number({
+            invalid_type_error: 'Value start required a number',
+            required_error: 'Value start is required',
+        })
+        .min(1, 'The minimum to list must be 1'), // Mínimo es 1
+    end: z
+        .number({
+            invalid_type_error: 'Value end required a number',
+            required_error: 'Value end is required',
+        })
+        .max(5, 'The maximum to list must be 5'), // Máximo es 5
+    })
+    .superRefine((data, ctx) => {
+        if (data.end < data.start) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Value end must be greater than or equal to value start',
+            path: ['end'], // Especifica el campo con el problema
+        });
+    }
+})
+
 // Esquema para actualizar una FAQ (permite actualizar solo la respuesta)
 export const faqUpdateSchema = z.object({
     question: z
@@ -47,3 +72,5 @@ export const validateFaqUpdate = (data: unknown): ValidationSchemaResult => {
         ? { success: true, data: result.data }
         : { success: false, error: result.error };
 };
+
+
