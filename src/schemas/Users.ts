@@ -19,34 +19,44 @@ export const userSchema = z.object({
       required_error: 'Last name is required'
     })
     .trim(),
-  phoneNumber: z.string({
-    invalid_type_error: 'Phone number must be a string',
-    required_error: 'Phone number is required'
-  }).refine(validator.isMobilePhone, 'Invalid phone number'),
-  birthDate: z.string().date('Invalid date format'),
-  email: z.string({
-    invalid_type_error: 'Email must be a string',
-    required_error: 'Email is required'
-  }).email({
-    message: 'Invalid email address'
-  }),
-  password: z.string({
-    invalid_type_error: 'Password must be a string',
-    required_error: 'Password is required'
-  }).refine(validator.isStrongPassword, 'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol')
+  phoneNumber: z
+    .string({
+      invalid_type_error: 'Phone number must be a string',
+      required_error: 'Phone number is required'
+    })
+    .refine(validator.isMobilePhone, 'Invalid phone number'),
+  birthDate: z
+    .string().date('Invalid date format'),
+  email: z
+    .string({
+      invalid_type_error: 'Email must be a string',
+      required_error: 'Email is required'
+    })
+    .email({
+      message: 'Invalid email address'
+    }),
+  password: z
+    .string({
+      invalid_type_error: 'Password must be a string',
+      required_error: 'Password is required'
+    })
+    .refine(validator.isStrongPassword, 'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol')
 })
 
 const loginSchema = z.object({
-  email: z.string({
-    invalid_type_error: 'Email must be a string',
-    required_error: 'Email is required'
-  }).email({
-    message: 'Invalid email address'
-  }),
-  password: z.string({
-    invalid_type_error: 'Password must be a string',
-    required_error: 'Password is required'
-  })
+  email: z
+    .string({
+      invalid_type_error: 'Email must be a string',
+      required_error: 'Email is required'
+    })
+    .email({
+      message: 'Invalid email address'
+    }),
+  password: z
+    .string({
+      invalid_type_error: 'Password must be a string',
+      required_error: 'Password is required'
+    })
 })
 
 export const validateUser = (data: unknown): ValidationSchemaResult => {

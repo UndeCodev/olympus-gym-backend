@@ -4,5 +4,9 @@ export const {
   PORT = 3000,
   SALT_ROUNDS = 10,
   JWT_SECRET,
-  NODE_ENV = 'development'
+  NODE_ENV = 'development',
+  BASE_URL,
+  FRONT_BASE_URL,
+  GMAIL_APP_USER,
+  GMAIL_APP_PASSWORD
 } = process.env

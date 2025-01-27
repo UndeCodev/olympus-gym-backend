@@ -6,6 +6,7 @@ import { UserModel } from '../models/user'
 import { JWT_SECRET, NODE_ENV } from '../config/config'
 import { HttpCode } from '../enums'
 import { AppError } from '../exceptions/AppError'
+import { sendEmail } from '../services/mailService'
 
 // Validates user inputs
 export class AuthController {
@@ -21,11 +22,15 @@ export class AuthController {
     }
 
     try {
-      await UserModel.createUser(resultValidationInputData.data)
+      const userCreated = await UserModel.createUser(resultValidationInputData.data)
 
-      res.status(HttpCode.CREATED).json({
-        message: 'User created successfully'
-      })
+      if (!(userCreated instanceof AppError)) {
+        await sendEmail('validateEmail', userCreated.email)
+
+        res.status(HttpCode.CREATED).json({
+          message: 'User created successfully'
+        })
+      }
     } catch (error) {
       next(error)
     }
@@ -46,19 +51,19 @@ export class AuthController {
       // Call the model to login the user
       const user = await UserModel.loginUser(resultValidation.data)
 
-      if (user instanceof AppError) throw user
+      if (!(user instanceof AppError)) {
+        const token = jwt.sign({ id: user.id, rol: user.role }, String(JWT_SECRET), {
+          expiresIn: '1h'
+        })
 
-      const token = jwt.sign({ id: user.id, rol: user.role }, String(JWT_SECRET), {
-        expiresIn: '1h'
-      })
-
-      res.cookie('access_token', token, {
-        httpOnly: true,
-        secure: NODE_ENV === 'production',
-        sameSite: 'strict'
-      }).status(200).send({
-        user
-      })
+        res.cookie('access_token', token, {
+          httpOnly: true,
+          secure: NODE_ENV === 'production',
+          sameSite: 'strict'
+        }).status(200).send({
+          user
+        })
+      }
     } catch (error) {
       next(error)
     }

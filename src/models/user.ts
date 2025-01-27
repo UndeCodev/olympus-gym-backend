@@ -8,10 +8,6 @@ import { HttpCode } from '../enums'
 const prisma = new PrismaClient()
 
 export class UserModel {
-  hello (): void {
-
-  }
-
   static async findUserByEmail (email: string): Promise<User | null> {
     return await prisma.user.findUnique({
       where: {
@@ -30,7 +26,7 @@ export class UserModel {
       throw new AppError({
         name: 'AuthError',
         httpCode: HttpCode.BAD_REQUEST,
-        description: `User with the email ${email} already exists`
+        description: `El usuario con el correo ${email} ya existe`
       })
     }
 

@@ -27,9 +27,13 @@ interface AppErrorArgs {
   isOperational?: boolean
 }
 
-declare module 'express-session' {
-  interface SessionData {
-    user: NonSensitiveUserData | null
-    access_token: string | null
-  }
+export interface EmailType {
+  messageType: MailType
+  subject: string
+  title: string
+  message: string
+  actionPath: string
+  actionButtonText: string
+  subMessage: string | null
+  expirationTime: int
 }
