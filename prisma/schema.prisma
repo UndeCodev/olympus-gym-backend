@@ -31,6 +31,15 @@ model user {
   @@index([roleId], map: "User_roleId_fkey")
 }
 
+enum roles_name {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+
+
+//schema faqs
 model faqs {
   id               Int       @id @default(autoincrement())
   question        String
@@ -39,8 +48,21 @@ model faqs {
   updatedAt       DateTime @updatedAt
 }
 
-enum roles_name {
-  USER
-  ADMIN
-  MODERATOR
+
+
+//schema products
+model Products {
+  id             Int         @id @default(autoincrement())
+  name           String
+  description    String
+  price         Decimal
+  category       String
+  stockAvailable Int
+  dateAdded      DateTime @default(now())
+  status         Status
+}
+
+enum Status {
+  DISPONIBLE
+  AGOTADO
 }

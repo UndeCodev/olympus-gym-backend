@@ -16,9 +16,21 @@ export interface User {
 
 //Faqs interface
 export interface Faqs {
-  id: number,
+  id?: number,
   question: string,
   answer: string,
+}
+
+//products interface
+export interface Products{
+  id: number,
+  name: string,
+  description: string,
+  price: double,
+  category: string,
+  stockAvailable: number,
+  dateAdded: Date
+  status: status
 }
 
 export type NonSensitiveUserData = Omit<User, 'password'>
