@@ -44,12 +44,10 @@ export class FaqsModel {
     }
 
     static async updateFaq (id: number, data:{ question?: string; answer?: string }): Promise<Faqs> {
-        console.log(id, data)
         const faqUpdate = await prisma.faqs.update({
             where: {id},
             data
         })
-        
         
         if(!faqUpdate){
             throw new AppError({

@@ -38,9 +38,9 @@ export class FaqsController {
                 return
             }
 
-            const result = await FaqsModel.getFaqsInRange(start, end)
-            res.json({
-                faqs: result
+            const resultGetFaqsInRange = await FaqsModel.getFaqsInRange(start, end)
+            res.status(HttpCode.OK).json({
+                faqs: resultGetFaqsInRange
             })
         } catch (error) {
             next(error)
