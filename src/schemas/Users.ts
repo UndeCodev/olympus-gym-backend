@@ -1,6 +1,7 @@
 import z from 'zod'
-import { ValidationSchemaResult } from '../types'
 import validator from 'validator'
+import { zodValidationService } from '../services/zodValidationService'
+import { ValidationSchemaResult } from '../types'
 
 const onlyLetters = /^[a-zA-Z]+$/
 
@@ -24,9 +25,9 @@ export const userSchema = z.object({
       invalid_type_error: 'Phone number must be a string',
       required_error: 'Phone number is required'
     })
-    .refine(validator.isMobilePhone, 'Invalid phone number'),
+    .regex(/^\d{3}-\d{3}-\d{4}$/, 'Invalid phone number format. Expected format: ###-###-####'),
   birthDate: z
-    .string().date('Invalid date format'),
+    .string().date(),
   email: z
     .string({
       invalid_type_error: 'Email must be a string',
@@ -43,15 +44,8 @@ export const userSchema = z.object({
     .refine(validator.isStrongPassword, 'Password must be contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol')
 })
 
-const loginSchema = z.object({
-  email: z
-    .string({
-      invalid_type_error: 'Email must be a string',
-      required_error: 'Email is required'
-    })
-    .email({
-      message: 'Invalid email address'
-    }),
+// Just the email and password without .refine
+const loginSchema = userSchema.pick({ email: true }).extend({
   password: z
     .string({
       invalid_type_error: 'Password must be a string',
@@ -59,18 +53,11 @@ const loginSchema = z.object({
     })
 })
 
-export const validateUser = (data: unknown): ValidationSchemaResult => {
-  const result = userSchema.safeParse(data)
+// Just the email
+const validateResendSchema = userSchema.pick({ email: true })
 
-  return result.success
-    ? { success: true, data: result.data }
-    : { success: false, error: result.error }
-}
+export const validateUser = (data: unknown): ValidationSchemaResult<typeof userSchema> => zodValidationService(userSchema, data)
 
-export const validatePartialUser = (data: unknown): ValidationSchemaResult => {
-  const result = loginSchema.safeParse(data)
+export const validateResendVerification = (data: unknown): ValidationSchemaResult<typeof validateResendSchema> => zodValidationService(validateResendSchema, data)
 
-  return result.success
-    ? { success: true, data: result.data }
-    : { success: false, error: result.error }
-}
+export const validateLoginUser = (data: unknown): ValidationSchemaResult<typeof loginSchema> => zodValidationService(loginSchema, data)

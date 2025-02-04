@@ -1,22 +1,28 @@
-import { ZodSchema } from 'zod'
+import { ZodError, type ZodSchema, z } from 'zod'
 import { HttpCode } from './enums'
 import { Role } from '@prisma/client'
 
-type ValidationSchemaResult = { success: true, data: z.infer<typeof ZodSchema> } | { success: false, error: z.ZodError }
+type ValidationSchemaResult<T extends ZodSchema> =
+  | { success: true, data: z.infer<T> }
+  | { success: false, error: ZodError }
 
 // User interface
 export interface User {
-  id: number
+  id?: number
   firstName: string
   lastName: string
   phoneNumber: string
   birthDate: Date
   email: string
+  emailVerified?: boolean
+  twoFactorEnabled?: boolean
+  createdAt?: Date
+  updatedAt?: Date | null
   password: string
-  role: Role
+  role?: Role
 }
 
-export type NonSensitiveUserData = Omit<User, 'password'>
+export type NonSensitiveUserData = Omit<User, 'password', 'emailVerified', 'twoFactorEnabled'>
 export type AuthLoginDataUser = Pick<User, 'email' | 'password'>
 
 // Error handler interface

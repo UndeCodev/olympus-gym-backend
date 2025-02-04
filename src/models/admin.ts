@@ -7,9 +7,7 @@ const prisma = new PrismaClient()
 
 export class AdminModel {
   static async getAllEmailTypes (): Promise<EmailType[]> {
-    const emailTypes = await prisma.email_messages.findMany()
-
-    return emailTypes
+    return await prisma.email_messages.findMany()
   }
 
   static async createEmailType (inputData: EmailType): Promise<EmailType | AppError> {

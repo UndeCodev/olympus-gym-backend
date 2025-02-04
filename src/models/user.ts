@@ -37,7 +37,7 @@ export class UserModel {
         firstName,
         lastName,
         phoneNumber,
-        birthDate: new Date(birthDate),
+        birthDate,
         email,
         password: hashedPassword
       }
@@ -65,7 +65,7 @@ export class UserModel {
       throw new AppError({
         name: 'AuthError',
         httpCode: HttpCode.UNAUTHORIZED,
-        description: 'Email or password are'
+        description: 'El correo electrónico o la contraseña son inválidos.'
       })
     }
 

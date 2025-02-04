@@ -1,6 +1,7 @@
 import z from 'zod'
 import { ValidationSchemaResult } from '../types'
 import { MessageType } from '@prisma/client'
+import { zodValidationService } from '../services/zodValidationService'
 
 export const emailTypeSchema = z.object({
   messageType: z
@@ -44,10 +45,4 @@ export const emailTypeSchema = z.object({
     })
 })
 
-export const validateEmailType = (data: unknown): ValidationSchemaResult => {
-  const result = emailTypeSchema.safeParse(data)
-
-  return result.success
-    ? { success: true, data: result.data }
-    : { success: false, error: result.error }
-}
+export const validateEmailType = (data: unknown): ValidationSchemaResult<typeof emailTypeSchema> => zodValidationService(emailTypeSchema, data)

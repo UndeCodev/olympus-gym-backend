@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
 
-import { validatePartialUser, validateUser } from '../schemas/Users'
 import { UserModel } from '../models/user'
-import { JWT_SECRET, NODE_ENV } from '../config/config'
 import { HttpCode } from '../enums'
+import { validateLoginUser, validateResendVerification, validateUser } from '../schemas/Users'
+import { JWT_SECRET, NODE_ENV } from '../config/config'
+import jwt from 'jsonwebtoken'
 import { AppError } from '../exceptions/AppError'
 import { sendEmail } from '../services/mailService'
 
@@ -14,15 +14,19 @@ export class AuthController {
     const resultValidationInputData = validateUser(req.body)
 
     if (!resultValidationInputData.success) {
-      res.status(400).json({
+      res.status(HttpCode.BAD_REQUEST).json({
         message: 'Validation error',
-        errors: resultValidationInputData.error.format()
+        errors: resultValidationInputData?.error?.format()
       })
+
+      console.log(resultValidationInputData?.error?.format())
       return
     }
 
+    const { birthDate } = resultValidationInputData.data
+
     try {
-      const userCreated = await UserModel.createUser(resultValidationInputData.data)
+      const userCreated = await UserModel.createUser({ ...resultValidationInputData.data, birthDate: new Date(birthDate) })
 
       if (!(userCreated instanceof AppError)) {
         await sendEmail('validateEmail', userCreated.email)
@@ -37,10 +41,10 @@ export class AuthController {
   }
 
   static async loginUser (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validatePartialUser(req.body)
+    const resultValidation = validateLoginUser(req.body)
 
     if (!resultValidation.success) {
-      res.status(400).json({
+      res.status(HttpCode.BAD_REQUEST).json({
         message: 'Validation error',
         errors: resultValidation.error.format()
       })
@@ -73,5 +77,46 @@ export class AuthController {
     res
       .clearCookie('access_token')
       .json({ message: 'logout successfull' })
+  }
+
+  static async resendVerificationEmail (req: Request, res: Response, next: NextFunction): Promise<void> {
+    const resultValidation = validateResendVerification(req.body)
+
+    if (!resultValidation.success) {
+      res.status(HttpCode.BAD_REQUEST).json({
+        message: 'Validation error',
+        errors: resultValidation.error.format()
+      })
+      return
+    }
+
+    try {
+      const { email } = resultValidation.data
+      const userFound = await UserModel.findUserByEmail(email)
+
+      if (userFound === null) {
+        throw new AppError({
+          name: 'AuthError',
+          httpCode: HttpCode.NOT_FOUND,
+          description: `El usuario con el correo ${email} no está registrado.`
+        })
+      }
+
+      if (userFound.emailVerified !== false) {
+        throw new AppError({
+          name: 'AuthError',
+          httpCode: HttpCode.BAD_REQUEST,
+          description: `El usuario con el correo ${email} ya está verificado.`
+        })
+      }
+
+      await sendEmail('validateEmail', email)
+
+      res.status(HttpCode.OK).json({
+        message: 'Correo de verificación enviado correctamente.'
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 }
