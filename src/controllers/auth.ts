@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 
 import { UserModel } from '../models/user'
 import { HttpCode } from '../enums'
-import { validateLoginUser, validateResendVerification, validateUser } from '../schemas/Users'
+import { validateLoginUser, validateJustEmail, validateUser } from '../schemas/Users'
 import { JWT_SECRET, NODE_ENV } from '../config/config'
 import jwt from 'jsonwebtoken'
 import { AppError } from '../exceptions/AppError'
@@ -80,7 +80,7 @@ export class AuthController {
   }
 
   static async resendVerificationEmail (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validateResendVerification(req.body)
+    const resultValidation = validateJustEmail(req.body)
 
     if (!resultValidation.success) {
       res.status(HttpCode.BAD_REQUEST).json({
@@ -119,4 +119,40 @@ export class AuthController {
       next(error)
     }
   }
+
+  static async forgotPassword (req: Request, res: Response, next: NextFunction): Promise<void> {
+    const resultValidation = validateJustEmail(req.body)
+
+    if (!resultValidation.success) {
+      res.status(HttpCode.BAD_REQUEST).json({
+        message: 'Validation error',
+        errors: resultValidation.error.format()
+      })
+      return
+    }
+
+    try {
+      const { email } = resultValidation.data
+      const userFound = await UserModel.findUserByEmail(email)
+
+      if (userFound === null) {
+        throw new AppError({
+          name: 'AuthError',
+          httpCode: HttpCode.NOT_FOUND,
+          description: `El usuario con el correo ${email} no está registrado.`
+        })
+      }
+
+      await sendEmail('resetPassword', email)
+
+      res.status(HttpCode.OK).json({
+        message: 'Correo de recuperación enviado correctamente.'
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  // Default
+  // static async default (req: Request, res: Response, next: NextFunction): Promise<void> { }
 }

@@ -54,10 +54,9 @@ const loginSchema = userSchema.pick({ email: true }).extend({
 })
 
 // Just the email
-const validateResendSchema = userSchema.pick({ email: true })
+const justUserEmail = userSchema.pick({ email: true })
 
 export const validateUser = (data: unknown): ValidationSchemaResult<typeof userSchema> => zodValidationService(userSchema, data)
-
-export const validateResendVerification = (data: unknown): ValidationSchemaResult<typeof validateResendSchema> => zodValidationService(validateResendSchema, data)
-
 export const validateLoginUser = (data: unknown): ValidationSchemaResult<typeof loginSchema> => zodValidationService(loginSchema, data)
+
+export const validateJustEmail = (data: unknown): ValidationSchemaResult<typeof justUserEmail> => zodValidationService(justUserEmail, data)

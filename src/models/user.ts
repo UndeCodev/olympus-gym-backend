@@ -81,4 +81,7 @@ export class UserModel {
 
     return user
   }
+
+  // static async default (input: data): Promise<NonSensitiveUserData | AppError> {
+  // }
 }
