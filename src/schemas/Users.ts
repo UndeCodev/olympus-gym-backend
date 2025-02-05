@@ -53,6 +53,19 @@ const loginSchema = userSchema.pick({ email: true }).extend({
     })
 })
 
+const tokenAndNewPasswordSchema = z.object({
+  newPassword: z
+    .string({
+      invalid_type_error: 'Password must be a string',
+      required_error: 'Password is required'
+    }),
+  token: z
+    .string({
+      invalid_type_error: 'Token must be a string',
+      required_error: 'Token is required'
+    })
+})
+
 // Just the email
 const justUserEmail = userSchema.pick({ email: true })
 
@@ -60,3 +73,5 @@ export const validateUser = (data: unknown): ValidationSchemaResult<typeof userS
 export const validateLoginUser = (data: unknown): ValidationSchemaResult<typeof loginSchema> => zodValidationService(loginSchema, data)
 
 export const validateJustEmail = (data: unknown): ValidationSchemaResult<typeof justUserEmail> => zodValidationService(justUserEmail, data)
+
+export const validateTokenAndNewPassword = (data: unknown): ValidationSchemaResult<typeof tokenAndNewPasswordSchema> => zodValidationService(tokenAndNewPasswordSchema, data)

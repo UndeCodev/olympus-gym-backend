@@ -44,7 +44,7 @@ export const sendEmail = async (emailType: MessageType, to: string): Promise<Boo
   try {
     const token = jwt.sign({ id: userFound.id }, String(JWT_SECRET), { expiresIn: emailTypeFound.expirationTime })
 
-    const url = `${String(FRONT_BASE_URL)}/${String(emailTypeFound.actionPath)}&token=${token}`
+    const url = `${String(FRONT_BASE_URL)}/${String(emailTypeFound.actionPath)}/${token}`
 
     const mailOptions: Mail.Options = {
       from: `Olympus GYM - ${String(GMAIL_APP_USER)}`,

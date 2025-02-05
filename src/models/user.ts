@@ -16,6 +16,14 @@ export class UserModel {
     })
   }
 
+  static async findUserById (id: number): Promise<User | null> {
+    return await prisma.user.findUnique({
+      where: {
+        id
+      }
+    })
+  }
+
   static async createUser (input: User): Promise<NonSensitiveUserData | AppError> {
     const { firstName, lastName, phoneNumber, birthDate, email, password } =
       input
@@ -80,6 +88,29 @@ export class UserModel {
     }
 
     return user
+  }
+
+  static async resetPassword (userId: number, newPassword: string): Promise<Boolean | AppError> {
+    const userFound = await UserModel.findUserById(userId)
+
+    if (userFound === null) {
+      throw new AppError({
+        name: 'AuthError',
+        httpCode: HttpCode.NOT_FOUND,
+        description: `El usuario con el ID ${userId} no fue encontrado`
+      })
+    }
+
+    await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        password: newPassword
+      }
+    })
+
+    return true
   }
 
   // static async default (input: data): Promise<NonSensitiveUserData | AppError> {

@@ -2,11 +2,16 @@ import { NextFunction, Request, Response } from 'express'
 
 import { UserModel } from '../models/user'
 import { HttpCode } from '../enums'
-import { validateLoginUser, validateJustEmail, validateUser } from '../schemas/Users'
-import { JWT_SECRET, NODE_ENV } from '../config/config'
-import jwt from 'jsonwebtoken'
+import { validateLoginUser, validateJustEmail, validateUser, validateTokenAndNewPassword } from '../schemas/Users'
+import { JWT_SECRET, NODE_ENV, SALT_ROUNDS } from '../config/config'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { AppError } from '../exceptions/AppError'
 import { sendEmail } from '../services/mailService'
+import bcrypt from 'bcrypt'
+
+interface TokenPayload extends JwtPayload {
+  id: number
+}
 
 // Validates user inputs
 export class AuthController {
@@ -18,8 +23,6 @@ export class AuthController {
         message: 'Validation error',
         errors: resultValidationInputData?.error?.format()
       })
-
-      console.log(resultValidationInputData?.error?.format())
       return
     }
 
@@ -56,7 +59,7 @@ export class AuthController {
       const user = await UserModel.loginUser(resultValidation.data)
 
       if (!(user instanceof AppError)) {
-        const token = jwt.sign({ id: user.id, rol: user.role }, String(JWT_SECRET), {
+        const token = jwt.sign({ id: user.id }, String(JWT_SECRET), {
           expiresIn: '1h'
         })
 
@@ -120,7 +123,7 @@ export class AuthController {
     }
   }
 
-  static async forgotPassword (req: Request, res: Response, next: NextFunction): Promise<void> {
+  static async sendForgotPasswordEmail (req: Request, res: Response, next: NextFunction): Promise<void> {
     const resultValidation = validateJustEmail(req.body)
 
     if (!resultValidation.success) {
@@ -143,10 +146,42 @@ export class AuthController {
         })
       }
 
+      // TODO: Implement return token
       await sendEmail('resetPassword', email)
+
+      // TODO: Save reset token on database
 
       res.status(HttpCode.OK).json({
         message: 'Correo de recuperación enviado correctamente.'
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async resetPassword (req: Request, res: Response, next: NextFunction): Promise<void> {
+    const resultValidation = validateTokenAndNewPassword(req.body)
+
+    if (!resultValidation.success) {
+      res.status(HttpCode.BAD_REQUEST).json({
+        message: 'Validation error',
+        errors: resultValidation.error.format()
+      })
+      return
+    }
+
+    const { token, newPassword } = resultValidation.data
+
+    try {
+      const tokenDecoded = jwt.verify(token, String(JWT_SECRET)) as TokenPayload
+      const { id: userId } = tokenDecoded
+
+      const hashedPassword = await bcrypt.hash(newPassword, Number(SALT_ROUNDS))
+
+      await UserModel.resetPassword(Number(userId), hashedPassword)
+
+      res.json({
+        message: 'Contraseña actualizada correctamente.'
       })
     } catch (error) {
       next(error)
