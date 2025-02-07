@@ -17,7 +17,7 @@ export class FaqsController {
         }
     }
 
-    static async getFaqsInRange(req: Request, res: Response, next: NextFunction){
+    static async getFaqsInRange(req: Request, res: Response, next: NextFunction):Promise <void>{
         try {
             const {start, end} = req.body
             const resultValidationInputData = validateFAQInRange(req.body)
