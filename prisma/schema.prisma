@@ -51,18 +51,25 @@ model faqs {
 
 
 //schema products
-model Products {
+model Product {
   id             Int         @id @default(autoincrement())
   name           String
   description    String
-  price         Decimal
-  category       String
+  price          Float
   stockAvailable Int
   dateAdded      DateTime @default(now())
   status         Status
+  categoryId     Int
+  category       Category @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  products    Product[] 
 }
 
 enum Status {
-  DISPONIBLE
-  AGOTADO
+  AVAILABLE
+  OUT_OF_STOCK
 }

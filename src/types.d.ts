@@ -22,15 +22,27 @@ export interface Faqs {
 }
 
 //products interface
-export interface Products{
-  id: number,
-  name: string,
-  description: string,
-  price: double,
-  category: string,
-  stockAvailable: number,
-  dateAdded: Date
-  status: status
+export interface Product {
+  id?: number;
+  name: string;
+  description: string;
+  price: number;
+  stockAvailable: number;
+  dateAdded: Date;
+  status: ProductStatus;
+  categoryId: number; 
+}
+
+//categories interface
+export interface Category {
+  id?: number;
+  name: string;
+}
+
+// Enum for product status
+export enum ProductStatus {
+  AVAILABLE = "AVAILABLE",
+  OUT_OF_STOCK = "OUT_OF_STOCK",
 }
 
 export type NonSensitiveUserData = Omit<User, 'password'>
