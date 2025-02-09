@@ -31,6 +31,15 @@ model user {
   @@index([roleId], map: "User_roleId_fkey")
 }
 
+enum roles_name {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+
+
+//schema faqs
 model faqs {
   id               Int       @id @default(autoincrement())
   question        String
@@ -39,8 +48,37 @@ model faqs {
   updatedAt       DateTime @updatedAt
 }
 
-enum roles_name {
-  USER
-  ADMIN
-  MODERATOR
+
+
+//schema products
+model Product {
+  id             Int         @id @default(autoincrement())
+  name           String
+  description    String
+  price          Float
+  stockAvailable Int
+  dateAdded      DateTime @default(now())
+  status         Status
+  categoryId     Int
+  category       Category @relation(fields: [categoryId], references: [id])
+  Image          ProductImage[]
+}
+
+model ProductImage {
+  id        BigInt    @id @default(autoincrement())
+  productId Int
+  imageURL  String
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade) 
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  products    Product[] 
+}
+
+enum Status {
+  AVAILABLE
+  OUT_OF_STOCK
 }
