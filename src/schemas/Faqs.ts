@@ -1,4 +1,5 @@
 import z from 'zod';
+import { ValidationSchemaResult } from '../types';
 
 // Esquema para crear una FAQ (solo requiere pregunta)
 export const faqCreationSchema = z.object({
@@ -38,16 +39,6 @@ const validateRangeInFAQs = z.object({
     path: ["end"],
   });
 
-
-export function validateFAQInRange(input: any) {
-    const result = validateRangeInFAQs.safeParse(input);
-    
-    return result.success
-        ?{succes: true, data: result.data}
-        :{sucess: false, error: result.error.format()}
-}
-
-
 export const faqUpdateSchema = z.object({
       question: z
         .string({
@@ -64,4 +55,28 @@ export const faqUpdateSchema = z.object({
         .min(1, 'Answer must be at least 1 characters long')
         .trim(),
 });
+
+export const validateCreationFAQSchema = (data: unknown): ValidationSchemaResult => {
+  const result = faqCreationSchema.safeParse(data)
+
+  return result.success
+    ? { success: true, data: result.data }
+    : { success: false, error: result.error }
+}
+
+export function validateFAQInRange(input: any) {
+    const result = validateRangeInFAQs.safeParse(input);
+    
+    return result.success
+        ?{succes: true, data: result.data}
+        :{sucess: false, error: result.error.format()}
+}
+
+export const validateUpdateFAQSchema = (data: unknown): ValidationSchemaResult => {
+  const result = faqUpdateSchema.safeParse(data)
+
+  return result.success
+    ? { success: true, data: result.data }
+    : { success: false, error: result.error }
+}
 

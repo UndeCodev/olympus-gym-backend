@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { faqCreationSchema, faqUpdateSchema, validateFAQInRange } from "../schemas/Faqs";
+import { validateCreationFAQSchema, validateFAQInRange, validateUpdateFAQSchema } from "../schemas/Faqs";
 import { HttpCode } from "../enums";
 import { FaqsModel } from "../models/faqs";
 
@@ -8,10 +8,16 @@ export class FaqsController {
 
     static async getAllFaqs(_req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const result = await FaqsModel.getAllFaqs()
+            const faqs = await FaqsModel.getAllFaqs()
             res.status(HttpCode.OK).json({
-                faqs: result
+                faqs: faqs
             })
+
+            if(!faqs){
+                res.status(HttpCode.BAD_REQUEST).json({
+                    message: 'No FAQs found in database'
+                })
+            }
         } catch (error) {
             next(error)
         }
@@ -50,12 +56,12 @@ export class FaqsController {
 
     static async createFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const resultValidationInputData = faqCreationSchema.safeParse(req.body)
+            const resultValidationInputData = validateCreationFAQSchema(req.body)
 
             if(!resultValidationInputData.success) {
                 res.status(HttpCode.BAD_REQUEST).json({
                     message: 'Validation FAQ error.',
-                    errors: resultValidationInputData.error.format()
+                    errors: resultValidationInputData.error
                 })
                 return
             }
@@ -73,7 +79,7 @@ export class FaqsController {
     static async updateFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             //validate input data
-            const resultValidationInputData = faqUpdateSchema.safeParse(req.body)
+            const resultValidationInputData = validateUpdateFAQSchema(req.body)
 
             if(!resultValidationInputData.success){
                 res.status(HttpCode.BAD_REQUEST).json({

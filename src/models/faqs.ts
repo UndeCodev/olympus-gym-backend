@@ -47,6 +47,13 @@ export class FaqsModel {
                 answer
             }
         })
+        if(!faqCreated){
+            throw new AppError({
+                name: 'ErrorFaqCreated',
+                httpCode: HttpCode.BAD_REQUEST,
+                description: 'Error during create faq'
+            })
+        }
         return faqCreated
     }
 
