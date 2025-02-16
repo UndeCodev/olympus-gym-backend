@@ -22,40 +22,27 @@ export const productCreationSchema = z.object({
         .trim(),
 
     price: z
-        .union([
-            z.number({
-                invalid_type_error: 'Price must be a number',
-                required_error: 'Product price is required',
-            }),
-            z.string().transform((val) => parseFloat(val)), // Allow string numbers and convert them
-        ])
-        .refine((val) => val > 0, { message: 'Price must be greater than 0' }),
+        .string()
+        .transform((val) => parseFloat(val)) // Convierte strings a número
+        .refine((val) => !isNaN(val) && val > 0, { message: 'Price must be a valid number greater than 0' }),
 
     stockAvailable: z
-        .number({
-            invalid_type_error: 'Stock must be a number',
-            required_error: 'Stock quantity is required',
-        })
-        .int('Stock quantity must be an integer')
-        .min(0, 'Stock quantity cannot be negative'),
+        .string()
+        .transform((val) => parseInt(val, 10)) // Convierte strings a entero
+        .refine((val) => !isNaN(val) && val >= 0, { message: 'Stock must be a valid positive integer' }),
 
     dateAdded: z
-        .date({
-            invalid_type_error: 'Date must be a valid date type',
-            required_error: 'Date added is required',
-        })
-        .default(() => new Date()), // Default to current date
+        .date()
+        .default(() => new Date()),
 
-    status: statusEnum, // Validate status based on enum
+    status: statusEnum,
 
     categoryId: z
-        .number({
-            invalid_type_error: 'Category ID must be a number',
-            required_error: 'Category ID is required',
-        })
-        .int('Category ID must be an integer')
-        .positive('Category ID must be a positive number'),
+        .string()
+        .transform((val) => parseInt(val, 10)) // Convierte string a número entero
+        .refine((val) => !isNaN(val) && val > 0, { message: 'Category ID must be a valid number' }),
 });
+
 
 // Esquema de validación para actualizar productos
 export const productUpdateSchema = z.object({

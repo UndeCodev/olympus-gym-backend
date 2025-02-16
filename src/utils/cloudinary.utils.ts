@@ -1,25 +1,22 @@
 import { HttpCode } from "../enums"
 import { AppError } from "../exceptions/AppError"
 import cloudinary from "../config/cloudinary.config"
-import fs from 'fs'
-
+// @ts-ignore
+import streamifier from 'streamifier';
 
 export class Cloudinary {
-    static async uploadImage (filePath: string, folder: string = 'uploadsOlympusGYM'): Promise <{url: string, public_id: string} | AppError>{
+    static async uploadImage (buffer: Buffer){
         try {
-            const result = await cloudinary.uploader.upload(filePath, {
-                folder,
-                use_filename: true,
-                unique_filename: false,
-                overwrite: true
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'imageProducts' }, // Opcional: cambia el folder en Cloudinary
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result)
+                    }
+                );
+                streamifier.createReadStream(buffer).pipe(stream)
             })
-
-            fs.unlinkSync(filePath)
-
-            return{
-                url: result.secure_url,
-                public_id: result.public_id
-            }
         } catch (error) {
             throw new AppError({
                 name: 'AuthError',

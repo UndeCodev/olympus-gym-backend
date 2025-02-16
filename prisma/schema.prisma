@@ -37,8 +37,6 @@ enum roles_name {
   MODERATOR
 }
 
-
-
 //schema faqs
 model faqs {
   id               Int       @id @default(autoincrement())
@@ -47,8 +45,6 @@ model faqs {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
-
-
 
 //schema products
 model Product {

@@ -99,7 +99,7 @@ export class ProductsModel {
         }
     }
 
-    static async createProduct (input: Omit< Product, "id"> ): Promise <Product | AppError>{
+    static async createProduct (input: Omit< Product, "id">, image: string ): Promise <Product | AppError>{
         const {name, description, price, categoryId, stockAvailable, status} = input
 
         //validate category exists in database
@@ -124,6 +124,14 @@ export class ProductsModel {
                 description: `Error during create product.`
             })
         }
+
+        await prisma.productImage.create({
+            data: {
+                productId: createProduct.id,
+                imageURL: image
+            },
+        });
+        
         return createProduct
     }
 

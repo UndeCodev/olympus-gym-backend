@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ProductsModel } from "../models/products";
 import { HttpCode } from "../enums";
 import { paginationSchema, productCreationSchema, productUpdateSchema, searchSchema } from "../schemas/Products";
-
+import { Cloudinary } from "../utils/cloudinary.utils";
 
 export class ProductsController {
     static async getAllProducts (req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -76,6 +76,13 @@ export class ProductsController {
 
     static async createProduct(req: Request, res: Response, next: NextFunction): Promise<void>{
         try {
+            if(!req.file) {
+                res.status(HttpCode.BAD_REQUEST).json({
+                    message: 'File is required'
+                })
+                return
+            }
+
             const resultValidationInputData = productCreationSchema.safeParse(req.body)
 
             if(!resultValidationInputData.success){
@@ -85,8 +92,17 @@ export class ProductsController {
                 })
                 return
             }
+
+            const resultUploadImageToCloudinary: any = await Cloudinary.uploadImage(req.file.buffer)
+            if(!resultUploadImageToCloudinary){
+                res.status(HttpCode.BAD_REQUEST).json({
+                    message: 'Error upload image to cloudinary'
+                })
+                return
+            }
             
-            await ProductsModel.createProduct(resultValidationInputData.data)
+            await ProductsModel.createProduct(resultValidationInputData.data, resultUploadImageToCloudinary.secure_url)
+            
             res.status(HttpCode.CREATED).json({
                 message: 'Product created sucessfully'
             })

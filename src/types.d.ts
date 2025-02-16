@@ -1,5 +1,6 @@
 import { ZodSchema } from 'zod'
 import { HttpCode } from './enums'
+import { ProductImage } from '@prisma/client'
 
 type ValidationSchemaResult = { success: true, data: z.infer<typeof ZodSchema> } | { success: false, error: z.ZodError }
 
@@ -16,9 +17,40 @@ export interface User {
 
 //Faqs interface
 export interface Faqs {
-  id: number,
+  id?: number,
   question: string,
   answer: string,
+}
+
+//products interface
+export interface Product {
+  id?: number;
+  name: string;
+  description: string;
+  price: number;
+  stockAvailable: number;
+  dateAdded: Date;
+  status: ProductStatus;
+  categoryId: number; 
+  imageUrl?: ProductImage[]
+}
+
+export interface ProductImage{
+  id?: number;
+  productId: number;
+  imageUrl: string;
+}
+
+//categories interface
+export interface Category {
+  id?: number;
+  name: string;
+}
+
+// Enum for product status
+export enum ProductStatus {
+  AVAILABLE = "AVAILABLE",
+  OUT_OF_STOCK = "OUT_OF_STOCK",
 }
 
 export type NonSensitiveUserData = Omit<User, 'password'>
