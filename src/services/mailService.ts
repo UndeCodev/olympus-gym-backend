@@ -86,7 +86,7 @@ export const sendEmail = async (emailType: MessageType, to: string): Promise<Boo
                                       text-transform: uppercase;
                                       letter-spacing: 0.5px;
                                       transition: background-color 0.3s ease;">
-                                Restablecer Contraseña
+                                ${String(emailTypeFound.actionButtonText)}
                             </a>
                         </div>
 

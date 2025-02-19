@@ -1,193 +1,205 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { UserModel } from '../models/user'
+import * as UserModel from '../models/user'
 import { HttpCode } from '../enums'
-import { validateLoginUser, validateJustEmail, validateUser, validateTokenAndNewPassword } from '../schemas/Users'
-import { JWT_SECRET, NODE_ENV, SALT_ROUNDS } from '../config/config'
+import {
+  validateLoginUser,
+  validateJustEmail,
+  validateUser,
+  validateTokenAndNewPassword
+} from '../schemas/Users'
+import { JWT_SECRET, NODE_ENV } from '../config/config'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { AppError } from '../exceptions/AppError'
 import { sendEmail } from '../services/mailService'
-import bcrypt from 'bcrypt'
 
 interface TokenPayload extends JwtPayload {
-  id: number
+  userId: number
 }
 
 // Validates user inputs
-export class AuthController {
-  static async createUser (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidationInputData = validateUser(req.body)
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidationInputData = validateUser(req.body)
 
-    if (!resultValidationInputData.success) {
-      res.status(HttpCode.BAD_REQUEST).json({
-        message: 'Validation error',
-        errors: resultValidationInputData?.error?.format()
-      })
-      return
-    }
-
-    const { birthDate } = resultValidationInputData.data
-
-    try {
-      const userCreated = await UserModel.createUser({ ...resultValidationInputData.data, birthDate: new Date(birthDate) })
-
-      if (!(userCreated instanceof AppError)) {
-        await sendEmail('validateEmail', userCreated.email)
-
-        res.status(HttpCode.CREATED).json({
-          message: 'User created successfully'
-        })
-      }
-    } catch (error) {
-      next(error)
-    }
+  if (!resultValidationInputData.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidationInputData?.error?.format()
+    })
+    return
   }
 
-  static async loginUser (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validateLoginUser(req.body)
+  const { birthDate } = resultValidationInputData.data
 
-    if (!resultValidation.success) {
-      res.status(HttpCode.BAD_REQUEST).json({
-        message: 'Validation error',
-        errors: resultValidation.error.format()
-      })
-      return
-    }
+  try {
+    const userCreated = await UserModel.createUser({ ...resultValidationInputData.data, birthDate: new Date(birthDate) })
 
-    try {
-      // Call the model to login the user
-      const user = await UserModel.loginUser(resultValidation.data)
+    await sendEmail('validateEmail', userCreated.email)
 
-      if (!(user instanceof AppError)) {
-        const token = jwt.sign({ id: user.id }, String(JWT_SECRET), {
-          expiresIn: '1h'
-        })
-
-        res.cookie('access_token', token, {
-          httpOnly: true,
-          secure: NODE_ENV === 'production',
-          sameSite: 'strict'
-        }).status(200).send({
-          user
-        })
-      }
-    } catch (error) {
-      next(error)
-    }
+    res.status(HttpCode.CREATED).json({
+      message: 'Usuario registrado correctamente.'
+    })
+  } catch (error) {
+    next(error)
   }
-
-  static async logout (_req: Request, res: Response, _next: NextFunction): Promise<void> {
-    res
-      .clearCookie('access_token')
-      .json({ message: 'logout successfull' })
-  }
-
-  static async resendVerificationEmail (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validateJustEmail(req.body)
-
-    if (!resultValidation.success) {
-      res.status(HttpCode.BAD_REQUEST).json({
-        message: 'Validation error',
-        errors: resultValidation.error.format()
-      })
-      return
-    }
-
-    try {
-      const { email } = resultValidation.data
-      const userFound = await UserModel.findUserByEmail(email)
-
-      if (userFound === null) {
-        throw new AppError({
-          name: 'AuthError',
-          httpCode: HttpCode.NOT_FOUND,
-          description: `El usuario con el correo ${email} no está registrado.`
-        })
-      }
-
-      if (userFound.emailVerified !== false) {
-        throw new AppError({
-          name: 'AuthError',
-          httpCode: HttpCode.BAD_REQUEST,
-          description: `El usuario con el correo ${email} ya está verificado.`
-        })
-      }
-
-      await sendEmail('validateEmail', email)
-
-      res.status(HttpCode.OK).json({
-        message: 'Correo de verificación enviado correctamente.'
-      })
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  static async sendForgotPasswordEmail (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validateJustEmail(req.body)
-
-    if (!resultValidation.success) {
-      res.status(HttpCode.BAD_REQUEST).json({
-        message: 'Validation error',
-        errors: resultValidation.error.format()
-      })
-      return
-    }
-
-    try {
-      const { email } = resultValidation.data
-      const userFound = await UserModel.findUserByEmail(email)
-
-      if (userFound === null) {
-        throw new AppError({
-          name: 'AuthError',
-          httpCode: HttpCode.NOT_FOUND,
-          description: `El usuario con el correo ${email} no está registrado.`
-        })
-      }
-
-      // TODO: Implement return token
-      await sendEmail('resetPassword', email)
-
-      // TODO: Save reset token on database
-
-      res.status(HttpCode.OK).json({
-        message: 'Correo de recuperación enviado correctamente.'
-      })
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  static async resetPassword (req: Request, res: Response, next: NextFunction): Promise<void> {
-    const resultValidation = validateTokenAndNewPassword(req.body)
-
-    if (!resultValidation.success) {
-      res.status(HttpCode.BAD_REQUEST).json({
-        message: 'Validation error',
-        errors: resultValidation.error.format()
-      })
-      return
-    }
-
-    const { token, newPassword } = resultValidation.data
-
-    try {
-      const tokenDecoded = jwt.verify(token, String(JWT_SECRET)) as TokenPayload
-      const { id: userId } = tokenDecoded
-
-      const hashedPassword = await bcrypt.hash(newPassword, Number(SALT_ROUNDS))
-
-      await UserModel.resetPassword(Number(userId), hashedPassword)
-
-      res.json({
-        message: 'Contraseña actualizada correctamente.'
-      })
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  // Default
-  // static async default (req: Request, res: Response, next: NextFunction): Promise<void> { }
 }
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = validateLoginUser(req.body)
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format()
+    })
+    return
+  }
+
+  try {
+    const user = await UserModel.loginUser(resultValidation.data)
+
+    const token = jwt.sign({ userId: user?.id }, String(JWT_SECRET), {
+      expiresIn: '1h'
+    })
+
+    res
+      .cookie('access_token', token, {
+        httpOnly: true,
+        secure: NODE_ENV === 'production',
+        sameSite: 'strict'
+      })
+      .send({
+        user
+      })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const logout = async (
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<void> => {
+  res.clearCookie('access_token').json({ message: 'logout successfull' })
+}
+
+export const resendVerificationEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = validateJustEmail(req.body)
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format()
+    })
+    return
+  }
+
+  try {
+    const { email } = resultValidation.data
+
+    const userFound = await UserModel.findUserByEmail(email)
+    if (userFound instanceof AppError) return
+
+    if (userFound.emailVerified !== false) {
+      throw new AppError({
+        name: 'AuthError',
+        httpCode: HttpCode.BAD_REQUEST,
+        description: `El usuario con el correo ${email} ya está verificado.`
+      })
+    }
+
+    await sendEmail('validateEmail', email)
+
+    res.status(HttpCode.OK).json({
+      message: 'Correo de verificación enviado correctamente.'
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const sendForgotPasswordEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = validateJustEmail(req.body)
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format()
+    })
+    return
+  }
+
+  try {
+    const { email } = resultValidation.data
+    const userFound = await UserModel.findUserByEmail(email)
+
+    if (userFound === null) {
+      throw new AppError({
+        name: 'AuthError',
+        httpCode: HttpCode.NOT_FOUND,
+        description: `El usuario con el correo ${email} no está registrado.`
+      })
+    }
+
+    // TODO: Implement return token
+    await sendEmail('resetPassword', email)
+
+    // TODO: Save reset token on database
+
+    res.status(HttpCode.OK).json({
+      message: 'Correo de recuperación enviado correctamente.'
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const resultValidation = validateTokenAndNewPassword(req.body)
+
+  if (!resultValidation.success) {
+    res.status(HttpCode.BAD_REQUEST).json({
+      message: 'Validation error',
+      errors: resultValidation.error.format()
+    })
+    return
+  }
+
+  const { token, newPassword } = resultValidation.data
+
+  try {
+    const { userId } = jwt.verify(token, String(JWT_SECRET)) as TokenPayload
+
+    await UserModel.resetPassword(+userId, newPassword)
+
+    res.json({
+      message: 'Contraseña actualizada correctamente.'
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Default
+// const default = async(req: Request, res: Response, next: NextFunction): Promise<void> => { }
