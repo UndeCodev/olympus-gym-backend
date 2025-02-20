@@ -1,5 +1,5 @@
 import { HttpCode } from '../enums'
-import { AppErrorArgs } from '../types'
+import { AppErrorArgs } from '../interfaces/AppErrorArgs'
 
 export class AppError extends Error {
   public readonly name: string
