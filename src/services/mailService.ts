@@ -1,7 +1,7 @@
 import { MessageType, PrismaClient } from '@prisma/client'
 import { AppError } from '../exceptions/AppError'
 import { HttpCode } from '../enums'
-import mailTransporter from '../config/nodeMailerConfig'
+import mailTransporter from '../config/nodeMailer'
 import Mail from 'nodemailer/lib/mailer'
 import { GMAIL_APP_USER, JWT_SECRET, FRONT_BASE_URL } from '../config/config'
 import jwt from 'jsonwebtoken'

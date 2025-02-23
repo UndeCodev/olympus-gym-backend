@@ -3,15 +3,16 @@ import { NextFunction, Request, Response } from 'express'
 import * as UserModel from '../models/user'
 import { HttpCode } from '../enums'
 import {
-  validateLoginUser,
-  validateJustEmail,
-  validateUser,
-  validateTokenAndNewPassword
+  userSchema,
+  loginSchema,
+  justUserEmailSchema,
+  tokenAndNewPasswordSchema
 } from '../schemas/Users'
 import { JWT_SECRET, NODE_ENV } from '../config/config'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { AppError } from '../exceptions/AppError'
 import { sendEmail } from '../services/mailService'
+import { zodValidationService } from '../services/zodValidationService'
 
 interface TokenPayload extends JwtPayload {
   userId: number
@@ -23,7 +24,7 @@ export const createUser = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const resultValidationInputData = validateUser(req.body)
+  const resultValidationInputData = zodValidationService(userSchema, req.body)
 
   if (!resultValidationInputData.success) {
     res.status(HttpCode.BAD_REQUEST).json({
@@ -53,7 +54,7 @@ export const loginUser = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const resultValidation = validateLoginUser(req.body)
+  const resultValidation = zodValidationService(loginSchema, req.body)
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({
@@ -97,7 +98,7 @@ export const resendVerificationEmail = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const resultValidation = validateJustEmail(req.body)
+  const resultValidation = zodValidationService(justUserEmailSchema, req.body)
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({
@@ -136,7 +137,7 @@ export const sendForgotPasswordEmail = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const resultValidation = validateJustEmail(req.body)
+  const resultValidation = zodValidationService(justUserEmailSchema, req.body)
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({
@@ -176,7 +177,7 @@ export const resetPassword = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const resultValidation = validateTokenAndNewPassword(req.body)
+  const resultValidation = zodValidationService(tokenAndNewPasswordSchema, req.body)
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({

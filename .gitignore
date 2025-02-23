@@ -3,6 +3,7 @@ node_modules/
 
 # Generated files
 build/
+uploads/
 
 # Sensitive configuration files
 .env

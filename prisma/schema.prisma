@@ -36,6 +36,18 @@ model email_messages {
   updatedAt        DateTime?
 }
 
+model company_profile {
+  id          Int    @id @default(autoincrement())
+  logo        String
+  name        String
+  slogan      String
+  address     String
+  zip         String
+  phoneNumber String
+  email       String
+  socialMedia Json
+}
+
 enum Role {
   USER
   ADMIN

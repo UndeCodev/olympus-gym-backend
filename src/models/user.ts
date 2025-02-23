@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import type { AuthLoginDataUser, NonSensitiveUserData } from '../types'
 import { AppError } from '../exceptions/AppError'
 import { HttpCode } from '../enums'
-import { User } from '../interfaces/user.interface'
+import { User } from '../interfaces/User'
 import { comparePassword, hashPassword } from '../utils/passwordUtils'
 
 const prisma = new PrismaClient()

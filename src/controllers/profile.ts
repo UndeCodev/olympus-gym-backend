@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { validateChangePassword } from '../schemas/ChangePassword'
+import { changePasswordSchema } from '../schemas/ChangePassword'
 import { HttpCode } from '../enums'
 import * as ProfileModel from '../models/profile'
+import { zodValidationService } from '../services/zodValidationService'
 
 export const changePassword = async (
   req: Request,
@@ -10,7 +11,7 @@ export const changePassword = async (
 ): Promise<void> => {
   const userId: number = res.locals?.user
 
-  const resultValidation = validateChangePassword(req.body)
+  const resultValidation = zodValidationService(changePasswordSchema, req.body)
 
   if (!resultValidation.success) {
     res.status(HttpCode.BAD_REQUEST).json({

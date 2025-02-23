@@ -1,7 +1,5 @@
 import z from 'zod'
 import validator from 'validator'
-import { zodValidationService } from '../services/zodValidationService'
-import { ValidationSchemaResult } from '../types'
 
 const onlyLetters = /^[a-zA-Z]+$/
 
@@ -45,7 +43,7 @@ export const userSchema = z.object({
 })
 
 // Just the email and password without .refine
-const loginSchema = userSchema.pick({ email: true }).extend({
+export const loginSchema = userSchema.pick({ email: true }).extend({
   password: z
     .string({
       invalid_type_error: 'Password must be a string',
@@ -53,7 +51,7 @@ const loginSchema = userSchema.pick({ email: true }).extend({
     })
 })
 
-const tokenAndNewPasswordSchema = z.object({
+export const tokenAndNewPasswordSchema = z.object({
   newPassword: z
     .string({
       invalid_type_error: 'Password must be a string',
@@ -67,11 +65,4 @@ const tokenAndNewPasswordSchema = z.object({
 })
 
 // Just the email
-const justUserEmail = userSchema.pick({ email: true })
-
-export const validateUser = (data: unknown): ValidationSchemaResult<typeof userSchema> => zodValidationService(userSchema, data)
-export const validateLoginUser = (data: unknown): ValidationSchemaResult<typeof loginSchema> => zodValidationService(loginSchema, data)
-
-export const validateJustEmail = (data: unknown): ValidationSchemaResult<typeof justUserEmail> => zodValidationService(justUserEmail, data)
-
-export const validateTokenAndNewPassword = (data: unknown): ValidationSchemaResult<typeof tokenAndNewPasswordSchema> => zodValidationService(tokenAndNewPasswordSchema, data)
+export const justUserEmailSchema = userSchema.pick({ email: true })
