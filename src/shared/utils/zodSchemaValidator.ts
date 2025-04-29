@@ -1,5 +1,6 @@
 import { AnyZodObject, z } from 'zod';
-import { AppError, HttpCode } from '../../core/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
+import { HttpCode } from '../interfaces/HttpCode';
 
 export const validateSchema = async <T extends AnyZodObject>(schema: T, data: unknown): Promise<z.infer<T>> => {
   const result = await schema.safeParseAsync(data);
