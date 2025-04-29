@@ -5,6 +5,7 @@ import { AuthModel } from '../models/auth.model';
 
 import { NODE_ENV } from '../../../shared/config/env';
 import { signTokenWithJWT } from '../../../shared/utils/signTokenWithJWT';
+import { HttpCode } from '../../../shared/interfaces/HttpCode';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -36,5 +37,19 @@ export class AuthController {
         sameSite: 'lax',
       })
       .json(user);
+  }
+
+  static async logout(_: Request, res: Response) {
+    res.clearCookie('access_token').sendStatus(HttpCode.OK);
+  }
+
+  static async authMe(_: Request, res: Response) {
+    const userId = res.locals.user;
+
+    const user = await AuthModel.findUserByIdWithouSensitiveData(userId);
+
+    res.json({
+      user,
+    });
   }
 }

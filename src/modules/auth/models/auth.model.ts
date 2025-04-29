@@ -13,6 +13,43 @@ export class AuthModel {
     return user;
   }
 
+  static async findUserByEmailWithoutSensitiveData(email: string) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        birthDate: true,
+        email: true,
+        phoneNumber: true,
+        rol: true,
+      },
+    });
+    return user;
+  }
+
+  static async findUserById(id: number) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    return user;
+  }
+
+  static async findUserByIdWithouSensitiveData(id: number) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        birthDate: true,
+        email: true,
+        phoneNumber: true,
+        rol: true,
+      },
+    });
+    return user;
+  }
+
   static async createUser(user: User) {
     const existingUser = await this.findUserByEmail(user.email);
 
