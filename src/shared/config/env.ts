@@ -1,5 +1,3 @@
 process.loadEnvFile();
 
-export const {
-  PORT = 3000
-} = process.env;
+export const { NODE_ENV = 'development', PORT = 3000, JWT_SECRET } = process.env;

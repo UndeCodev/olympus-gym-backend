@@ -4,10 +4,12 @@ import { PORT } from './shared/config/env';
 import router from './shared/routes';
 import { errorHandlerMiddleware } from './shared/middlewares/errorHandler';
 import { corsMiddleware } from './shared/middlewares/cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 app.disable('x-powered-by');
+app.use(cookieParser());
 app.use(express.json());
 app.use(corsMiddleware());
 app.use(morgan('dev'));

@@ -13,3 +13,7 @@ export const createUserSchema = z.object({
     .regex(/[0-9]/, { message: 'La contraseña debe contener al menos un número' })
     .regex(/[^A-Za-z0-9]/, { message: 'La contraseña debe contener al menos un carácter especial' }),
 });
+
+export const loginSchema = createUserSchema.pick({ email: true }).extend({
+  password: z.string(),
+});
