@@ -1,11 +1,13 @@
 import { Response } from 'express';
-import { AppError, HttpCode } from './AppError';
+import { AppError } from './AppError';
+import { HttpCode } from '../../shared/interfaces/HttpCode';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 class ErrorHandler {
   private isTrustedError(error: Error): boolean {
-    if (error instanceof AppError) {
-      return error.isOperational;
-    }
+    if (error instanceof AppError) return error.isOperational;
+    if (error instanceof JsonWebTokenError) return true;
+    if (error.message.includes('token')) return true;
 
     return false;
   }
@@ -19,6 +21,11 @@ class ErrorHandler {
   }
 
   private handleTrustedError(error: AppError, response: Response): void {
+    if (error instanceof JsonWebTokenError || error.message.includes('token')) {
+      response.status(HttpCode.UNAUTHORIZED).json({ message: 'El token proporcionado ha expirado o es inválido.' });
+      return;
+    }
+
     response.status(error.httpCode).json({
       message: error.message,
       errors: error.details?.errors,
