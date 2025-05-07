@@ -96,7 +96,7 @@ export class AuthModel {
       });
     }
 
-    const { password: _, emailVerified, twoFactorEnabled, ...userWithoutPassword } = user;
+    const { password: _, emailVerified, twoFactorEnabled, refreshToken, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
   }

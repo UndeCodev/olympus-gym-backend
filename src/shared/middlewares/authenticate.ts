@@ -1,28 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../core/errors/AppError';
 import { HttpCode } from '../interfaces/HttpCode';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/env';
+import { tokenService } from '../services/tokens.service';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const accessToken = req.cookies.access_token;
+  const authHeader = req.headers.authorization;
 
-  if (!accessToken) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw new AppError({
       httpCode: HttpCode.UNAUTHORIZED,
       description: 'No token provided',
     });
   }
 
-  const decoded = jwt.verify(accessToken, String(JWT_SECRET));
+  const accessToken = authHeader.split(' ')[1];
+
+  const decoded = tokenService.verifyAccessToken(accessToken);
 
   if (typeof decoded !== 'string' && 'id' in decoded) {
-    res.locals.user = (decoded as JwtPayload).id;
-    return next();
+    res.locals.user = decoded.id;
+    next();
   }
-
-  throw new AppError({
-    httpCode: HttpCode.UNAUTHORIZED,
-    description: 'Invalid token',
-  });
 };

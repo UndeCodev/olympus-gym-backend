@@ -1,6 +1,6 @@
 import cors from 'cors';
 
-const ACCPETED_ORIGINS = ['http://localhost:3000'];
+const ACCPETED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'];
 
 export const corsMiddleware = ({ acceptedOrigins = ACCPETED_ORIGINS } = {}) =>
   cors({
@@ -15,4 +15,5 @@ export const corsMiddleware = ({ acceptedOrigins = ACCPETED_ORIGINS } = {}) =>
 
       return cb(new Error('Not allowed by CORS'));
     },
+    credentials: true,
   });

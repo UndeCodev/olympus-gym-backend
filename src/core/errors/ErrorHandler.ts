@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AppError } from './AppError';
 import { HttpCode } from '../../shared/interfaces/HttpCode';
-import { JsonWebTokenError } from 'jsonwebtoken';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 class ErrorHandler {
   private isTrustedError(error: Error): boolean {
@@ -21,7 +21,7 @@ class ErrorHandler {
   }
 
   private handleTrustedError(error: AppError, response: Response): void {
-    if (error instanceof JsonWebTokenError || error.message.includes('token')) {
+    if (error instanceof JsonWebTokenError || error instanceof TokenExpiredError) {
       response.status(HttpCode.UNAUTHORIZED).json({ message: 'El token proporcionado ha expirado o es inválido.' });
       return;
     }

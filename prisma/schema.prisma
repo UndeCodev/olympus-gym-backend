@@ -19,6 +19,7 @@ model User {
   emailVerified    Boolean  @default(false)
   twoFactorEnabled Boolean  @default(false)
   rol              Rol      @default(USER)
+  refreshToken     String?  @unique
 }
 
 enum Rol {
