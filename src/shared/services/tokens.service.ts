@@ -14,6 +14,10 @@ class TokenService {
     this.refreshSecret = JWT_SECRET_REFRESH!;
   }
 
+  public generateVerificationToken(userId: number): string {
+    return jwt.sign({ id: userId }, this.accessSecret, { expiresIn: '1h' });
+  }
+
   public generateAccessToken(payload: JwtPayload): string {
     return jwt.sign(payload, this.accessSecret, {
       expiresIn: '15min',

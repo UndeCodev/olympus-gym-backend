@@ -1,3 +1,12 @@
 process.loadEnvFile();
 
-export const { NODE_ENV = 'development', PORT = 3000, JWT_SECRET_ACCESS, JWT_SECRET_REFRESH } = process.env;
+export const {
+  APP_ORIGIN,
+  PORT = 3000,
+  NODE_ENV = 'development',
+  DATABASE_URL,
+  JWT_SECRET_ACCESS,
+  JWT_SECRET_REFRESH,
+  NODEMAILER_USER,
+  NODEMAILER_PASS,
+} = process.env;

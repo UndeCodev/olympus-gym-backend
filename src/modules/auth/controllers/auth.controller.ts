@@ -8,21 +8,15 @@ import { tokenService } from '../../../shared/services/tokens.service';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET_REFRESH, NODE_ENV } from '../../../shared/config/env';
 import { JwtPayload } from '../../../shared/interfaces/JwtPayload';
+import { createAccountService } from '../services/createAccount.service';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
-    const { firstName, lastName, phoneNumber, birthDate, email, password } = await validateSchema(
-      createUserSchema,
-      req.body,
-    );
+    const userValidated = await validateSchema(createUserSchema, req.body);
 
-    await AuthModel.createUser({ firstName, lastName, phoneNumber, birthDate, email, password });
+    await createAccountService(userValidated);
 
-    // TODO: Send verification email
-
-    res.json({
-      message: 'Usuario registrado correctamente. Por favor, revisa tu correo electrónico para verificar tu cuenta.',
-    });
+    res.sendStatus(HttpCode.CREATED);
   }
 
   static async login(req: Request, res: Response) {

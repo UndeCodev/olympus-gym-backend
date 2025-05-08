@@ -15,7 +15,7 @@ app.use(corsMiddleware());
 app.use(morgan('dev'));
 
 // Routes
-app.get('/healthcheck', (req, res) => {
+app.get('/healthcheck', (_, res) => {
   res.send('API is up and running');
 });
 
