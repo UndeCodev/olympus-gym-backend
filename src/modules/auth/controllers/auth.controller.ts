@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
 import {
+  changePasswordSchema,
   createUserSchema,
   emailSchema,
   loginSchema,
@@ -19,6 +20,7 @@ import { verifyEmailService } from '../services/verifyEmail.service';
 import { sendVerificationEmailService } from '../services/sendEmailVerification.service';
 import { requestPasswordResetService } from '../services/requestPasswordReset.service';
 import { resetPasswordService } from '../services/resetPassword.service';
+import { changePasswordService } from '../services/changePassword.service';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -197,6 +199,18 @@ export class AuthController {
     const { token, password, newPassword } = await validateSchema(resetPasswordSchema, req.body);
 
     await resetPasswordService(token, password, newPassword);
+
+    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
+
+    res.json({ message: 'Contraseña cambiada correctamente' });
+  }
+
+  static async changePassword(req: Request, res: Response) {
+    const userId = res.locals.user;
+
+    const { password, newPassword } = await validateSchema(changePasswordSchema, req.body);
+
+    await changePasswordService(userId, password, newPassword);
 
     res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
 

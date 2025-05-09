@@ -6,5 +6,5 @@ export const resetPasswordService = async (token: string, password: string, newP
 
   await AuthModel.resetPassword(id, password, newPassword);
 
-  tokenService.deleteRefreshToken(id);
+  await tokenService.deleteRefreshToken(id);
 };
