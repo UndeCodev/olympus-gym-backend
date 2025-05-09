@@ -1,21 +1,29 @@
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '../../../generated/prisma';
-import { JWT_SECRET_ACCESS, JWT_SECRET_REFRESH } from '../config/env';
+import { JWT_SECRET, JWT_SECRET_ACCESS, JWT_SECRET_REFRESH } from '../config/env';
 import { JwtPayload } from '../interfaces/JwtPayload';
 
 const prisma = new PrismaClient();
 
 class TokenService {
+  private secret: string;
   private accessSecret: string;
   private refreshSecret: string;
 
   constructor() {
+    this.secret = JWT_SECRET!;
     this.accessSecret = JWT_SECRET_ACCESS!;
     this.refreshSecret = JWT_SECRET_REFRESH!;
   }
 
   public generateVerificationToken(userId: number): string {
-    return jwt.sign({ id: userId }, this.accessSecret, { expiresIn: '1h' });
+    console.log(this.secret);
+
+    return jwt.sign({ id: userId }, this.secret, { expiresIn: '1h' });
+  }
+
+  public verifyToken(token: string): JwtPayload {
+    return jwt.verify(token, this.secret) as JwtPayload;
   }
 
   public generateAccessToken(payload: JwtPayload): string {

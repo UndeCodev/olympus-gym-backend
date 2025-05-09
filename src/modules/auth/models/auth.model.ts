@@ -100,4 +100,27 @@ export class AuthModel {
 
     return userWithoutPassword;
   }
+
+  static async verifyEmail(userId: number) {
+    const userFound = await this.findUserById(userId);
+
+    if (!userFound) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: 'No se encontro el usuario',
+      });
+    }
+
+    if (userFound.emailVerified) {
+      throw new AppError({
+        httpCode: HttpCode.CONFLIT,
+        description: 'El correo electrónico ya ha sido verificado',
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: true },
+    });
+  }
 }

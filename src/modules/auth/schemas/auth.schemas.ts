@@ -19,3 +19,5 @@ export const loginSchema = createUserSchema.pick({ email: true }).extend({
 });
 
 export const validateRefreshTokenSchema = z.object({ refreshToken: z.string() });
+
+export const verifyTokenSchema = z.object({ token: z.string() });

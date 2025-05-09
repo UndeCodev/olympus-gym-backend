@@ -5,6 +5,7 @@ export const {
   PORT = 3000,
   NODE_ENV = 'development',
   DATABASE_URL,
+  JWT_SECRET,
   JWT_SECRET_ACCESS,
   JWT_SECRET_REFRESH,
   NODEMAILER_USER,

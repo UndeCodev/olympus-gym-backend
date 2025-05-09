@@ -10,7 +10,7 @@ export const createAccountService = async (user: User) => {
 
   const verificationToken = tokenService.generateVerificationToken(userId);
 
-  const url = `${APP_ORIGIN}/auth/verify-email?token=${verificationToken}`;
+  const url = `${APP_ORIGIN}/auth/verify-email/${verificationToken}`;
 
   await sendEmail({ to: user.email, ...getVerifyEmailTemplate(url) });
 };
