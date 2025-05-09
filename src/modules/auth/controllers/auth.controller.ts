@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
-import { createUserSchema, emailSchema, loginSchema, verifyTokenSchema } from '../schemas/auth.schemas';
+import {
+  createUserSchema,
+  emailSchema,
+  loginSchema,
+  resetPasswordSchema,
+  verifyTokenSchema,
+} from '../schemas/auth.schemas';
 import { AuthModel } from '../models/auth.model';
 
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
@@ -12,6 +18,7 @@ import { createAccountService } from '../services/createAccount.service';
 import { verifyEmailService } from '../services/verifyEmail.service';
 import { sendVerificationEmailService } from '../services/sendEmailVerification.service';
 import { requestPasswordResetService } from '../services/requestPasswordReset.service';
+import { resetPasswordService } from '../services/resetPassword.service';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -184,5 +191,15 @@ export class AuthController {
     await requestPasswordResetService(email);
 
     res.json({ message: 'Correo electrónico enviado correctamente' });
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    const { token, password, newPassword } = await validateSchema(resetPasswordSchema, req.body);
+
+    await resetPasswordService(token, password, newPassword);
+
+    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
+
+    res.json({ message: 'Contraseña cambiada correctamente' });
   }
 }

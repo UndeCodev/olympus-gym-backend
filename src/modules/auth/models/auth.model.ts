@@ -123,4 +123,31 @@ export class AuthModel {
       data: { emailVerified: true },
     });
   }
+
+  static async resetPassword(id: number, password: string, newPassword: string) {
+    const userFound = await this.findUserById(id);
+
+    if (!userFound) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: 'No se encontro el usuario',
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, userFound.password);
+
+    if (!isPasswordValid) {
+      throw new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: 'Credenciales incorrectas',
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword },
+    });
+  }
 }
