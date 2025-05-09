@@ -11,6 +11,7 @@ import { JwtPayload } from '../../../shared/interfaces/JwtPayload';
 import { createAccountService } from '../services/createAccount.service';
 import { verifyEmailService } from '../services/verifyEmail.service';
 import { sendVerificationEmailService } from '../services/sendEmailVerification.service';
+import { requestPasswordResetService } from '../services/requestPasswordReset.service';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -173,6 +174,14 @@ export class AuthController {
     const { email } = await validateSchema(emailSchema, req.body);
 
     await sendVerificationEmailService(email);
+
+    res.json({ message: 'Correo electrónico enviado correctamente' });
+  }
+
+  static async requestPasswordReset(req: Request, res: Response) {
+    const { email } = await validateSchema(emailSchema, req.body);
+
+    await requestPasswordResetService(email);
 
     res.json({ message: 'Correo electrónico enviado correctamente' });
   }

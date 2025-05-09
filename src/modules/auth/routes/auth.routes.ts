@@ -13,3 +13,5 @@ authRoutes.get('/refresh', AuthController.refreshToken);
 
 authRoutes.post('/send-verification-email', AuthController.sendVerificationEmail);
 authRoutes.get('/verify-email/:token', AuthController.verifyEmail);
+
+authRoutes.post('/request-password-reset', AuthController.requestPasswordReset);
