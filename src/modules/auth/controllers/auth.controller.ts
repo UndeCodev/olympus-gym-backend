@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
-import { createUserSchema, loginSchema, verifyTokenSchema } from '../schemas/auth.schemas';
+import { createUserSchema, emailSchema, loginSchema, verifyTokenSchema } from '../schemas/auth.schemas';
 import { AuthModel } from '../models/auth.model';
 
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
@@ -10,6 +10,7 @@ import { JWT_SECRET_REFRESH, NODE_ENV } from '../../../shared/config/env';
 import { JwtPayload } from '../../../shared/interfaces/JwtPayload';
 import { createAccountService } from '../services/createAccount.service';
 import { verifyEmailService } from '../services/verifyEmail.service';
+import { sendVerificationEmailService } from '../services/sendEmailVerification.service';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -166,5 +167,13 @@ export class AuthController {
     res.status(HttpCode.OK).json({
       message: 'Correo electrónico verificado correctamente',
     });
+  }
+
+  static async sendVerificationEmail(req: Request, res: Response) {
+    const { email } = await validateSchema(emailSchema, req.body);
+
+    await sendVerificationEmailService(email);
+
+    res.json({ message: 'Correo electrónico enviado correctamente' });
   }
 }
