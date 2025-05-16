@@ -3,6 +3,7 @@ import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
 import { createProductSchema } from '../schemas/product.schema';
 import { createProductService } from '../services/createProduct.service';
+import { ProductModel } from '../models/product.model';
 
 export class ProductController {
   static async createProduct(req: Request, res: Response) {
@@ -17,5 +18,11 @@ export class ProductController {
     await createProductService(productData, images);
 
     res.sendStatus(HttpCode.CREATED);
+  }
+
+  static async getAllProducts(_: Request, res: Response) {
+    const products = await ProductModel.getAllProducts();
+
+    res.json({ products });
   }
 }

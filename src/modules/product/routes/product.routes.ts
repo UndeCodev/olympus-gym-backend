@@ -4,4 +4,6 @@ import upload from '../../../shared/config/multer';
 
 export const productRoutes = Router();
 
+productRoutes.get('/', ProductController.getAllProducts);
+
 productRoutes.post('/', upload.array('images', 5), ProductController.createProduct);

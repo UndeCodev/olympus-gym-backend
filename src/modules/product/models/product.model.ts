@@ -16,6 +16,11 @@ export class ProductModel {
     return product;
   }
 
+  static async getAllProducts() {
+    const products = await prisma.product.findMany();
+    return products;
+  }
+
   static async createProduct(productData: CreateProduct) {
     const { name, description, stock, categoryId, price, images: imagesData } = productData;
 
