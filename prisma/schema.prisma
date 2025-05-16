@@ -24,7 +24,7 @@ model user {
 
 model product {
   id          Int              @id @default(autoincrement())
-  name        String
+  name        String           @unique
   description String
   price       Float
   category    product_category @relation(fields: [categoryId], references: [id])
@@ -33,6 +33,7 @@ model product {
   status      ProductStatus    @default(STOCK)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  images      product_image[]
 }
 
 model product_category {
@@ -40,6 +41,20 @@ model product_category {
   name String @unique
 
   products product[]
+}
+
+model product_image {
+  id        Int      @id @default(autoincrement())
+  url       String
+  publicId  String
+  isPrimary Boolean  @default(false)
+  product   product  @relation(fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // only one primary image
+  @@unique([productId, isPrimary])
 }
 
 enum ProductStatus {
