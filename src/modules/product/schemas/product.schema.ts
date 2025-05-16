@@ -8,3 +8,7 @@ export const createProductSchema = z.object({
   categoryId: z.coerce.number().positive(),
   primaryImageIndex: z.coerce.number().min(0).max(5).default(0),
 });
+
+export const idProductSchema = z.object({
+  id: z.coerce.number().positive(),
+});

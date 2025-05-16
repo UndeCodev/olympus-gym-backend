@@ -5,7 +5,11 @@ const prisma = new PrismaClient();
 
 export class ProductModel {
   static async getProductById(id: number) {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true, images: true },
+      omit: { categoryId: true },
+    });
 
     return product;
   }
@@ -17,7 +21,10 @@ export class ProductModel {
   }
 
   static async getAllProducts() {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: { category: true, images: true },
+      omit: { categoryId: true },
+    });
     return products;
   }
 
