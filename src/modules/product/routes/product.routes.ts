@@ -8,3 +8,4 @@ productRoutes.get('/', ProductController.getAllProducts);
 productRoutes.get('/:id', ProductController.getProductById);
 
 productRoutes.post('/', upload.array('images', 5), ProductController.createProduct);
+productRoutes.delete('/:id', ProductController.deleteProductById);

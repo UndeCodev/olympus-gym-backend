@@ -4,6 +4,7 @@ import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
 import { createProductSchema, idProductSchema } from '../schemas/product.schema';
 import { createProductService } from '../services/createProduct.service';
 import { ProductModel } from '../models/product.model';
+import { deleteProductService } from '../services/deleteProduct.service';
 
 export class ProductController {
   static async getAllProducts(_: Request, res: Response) {
@@ -32,5 +33,15 @@ export class ProductController {
     await createProductService(productData, images);
 
     res.sendStatus(HttpCode.CREATED);
+  }
+
+  static async deleteProductById(req: Request, res: Response) {
+    const { id } = await validateSchema(idProductSchema, req.params);
+
+    console.log({ id });
+
+    await deleteProductService(id);
+
+    res.sendStatus(HttpCode.NO_CONTENT);
   }
 }

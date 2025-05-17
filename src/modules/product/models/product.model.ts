@@ -49,4 +49,11 @@ export class ProductModel {
 
     return product;
   }
+
+  static async deleteProductById(id: number) {
+    await prisma.$transaction(async (tx) => {
+      await tx.product_image.deleteMany({ where: { productId: id } });
+      await tx.product.delete({ where: { id } });
+    });
+  }
 }
