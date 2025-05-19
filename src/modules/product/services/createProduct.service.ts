@@ -1,6 +1,6 @@
 import { AppError } from '../../../core/errors/AppError';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
-import { uploadImageToCloudinary } from '../../../shared/utils/uploadImageToCloudinary';
+import { uploadMultipleFilesToCloudinary } from '../../../shared/utils/uploadMultipleImaesToCloudinary';
 import { CreateProduct } from '../interfaces/createProduct.type';
 import { ProductModel } from '../models/product.model';
 import { ProductCategoryModel } from '../models/productCategory.model';
@@ -32,18 +32,7 @@ export const createProductService = async (productData: CreateProduct, imagesToU
   }
 
   // Upload images to cloudinary
-  const createPromises = imagesToUpload.map(async (image, index) => {
-    const b64 = Buffer.from(image.buffer).toString('base64');
-    const dataURI = `data:${image.mimetype};base64,${b64}`;
-
-    const { secure_url, public_id } = await uploadImageToCloudinary(dataURI, 'products');
-
-    const isPrimary = index === productData.primaryImageIndex;
-
-    return { url: secure_url, publicId: public_id, isPrimary };
-  });
-
-  const images = await Promise.all(createPromises);
+  const images = await uploadMultipleFilesToCloudinary(imagesToUpload, 'products', productData.primaryImageIndex);
 
   await ProductModel.createProduct({ ...productData, images });
 };

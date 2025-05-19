@@ -1,5 +1,7 @@
 import multer from 'multer';
 import { Request } from 'express';
+import { AppError } from '../../core/errors/AppError';
+import { HttpCode } from '../interfaces/HttpCode';
 
 const storage = multer.memoryStorage();
 
@@ -7,7 +9,12 @@ const fileFilter = (_: Request, file: Express.Multer.File, cb: multer.FileFilter
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Solo se permiten imágenes'));
+    cb(
+      new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: 'Solo se permiten imágenes',
+      }),
+    );
   }
 };
 

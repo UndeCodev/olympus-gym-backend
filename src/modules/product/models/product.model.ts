@@ -1,5 +1,6 @@
 import { PrismaClient } from '../../../../generated/prisma';
 import { CreateProduct } from '../interfaces/createProduct.type';
+import { UpdateProductData } from '../interfaces/updatedProduct.interface';
 
 const prisma = new PrismaClient();
 
@@ -48,6 +49,10 @@ export class ProductModel {
     });
 
     return product;
+  }
+
+  static async updateProductById(id: number, productData: UpdateProductData) {
+    await prisma.product.update({ where: { id }, data: productData });
   }
 
   static async deleteProductById(id: number) {

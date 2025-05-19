@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
-import { createProductSchema, idProductSchema } from '../schemas/product.schema';
+import { createProductSchema, idProductSchema, updateProductSchema } from '../schemas/product.schema';
 import { createProductService } from '../services/createProduct.service';
 import { ProductModel } from '../models/product.model';
 import { deleteProductService } from '../services/deleteProduct.service';
+import { UpdateProductData } from '../interfaces/updatedProduct.interface';
+import { UpdateProductOptions } from '../interfaces/updateProductOptions.interface';
+import { updateProductService } from '../services/updateProduct.service';
 
 export class ProductController {
   static async getAllProducts(_: Request, res: Response) {
@@ -22,11 +25,6 @@ export class ProductController {
   }
 
   static async createProduct(req: Request, res: Response) {
-    if (!req.files || req.files.length === 0) {
-      res.status(HttpCode.BAD_REQUEST).json({ message: 'Debes de subir al menos una imagen' });
-      return;
-    }
-
     const images = req.files as Express.Multer.File[];
     const productData = await validateSchema(createProductSchema, req.body);
 
@@ -35,10 +33,27 @@ export class ProductController {
     res.sendStatus(HttpCode.CREATED);
   }
 
+  static async updateProduct(req: Request, res: Response) {
+    const { id } = await validateSchema(idProductSchema, req.params);
+    const { name, description, price, stock, categoryId, deletedImages, newPrimaryImageId } = await validateSchema(
+      updateProductSchema,
+      req.body,
+    );
+
+    const files = req.files as Express.Multer.File[];
+
+    const updateData: UpdateProductData = { name, description, price, stock, categoryId };
+    const updateOptions: UpdateProductOptions = { deletedImages, newPrimaryImageId, newImages: files };
+
+    const updatedProduct = await updateProductService(id, updateData, updateOptions);
+
+    res.json({
+      product: updatedProduct,
+    });
+  }
+
   static async deleteProductById(req: Request, res: Response) {
     const { id } = await validateSchema(idProductSchema, req.params);
-
-    console.log({ id });
 
     await deleteProductService(id);
 
