@@ -20,4 +20,9 @@ export class TrainerModel {
     const trainer = await prisma.user.create({ data: { ...trainerData, rol: 'MOD' } });
     return trainer;
   }
+
+  static async getAllTrainers() {
+    const trainers = await prisma.user.findMany({ where: { rol: 'MOD' } });
+    return trainers;
+  }
 }

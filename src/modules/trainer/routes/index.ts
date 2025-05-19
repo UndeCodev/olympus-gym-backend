@@ -6,3 +6,4 @@ import { authenticate } from '../../auth/middlewares/authenticate';
 export const trainerRoutes = Router();
 
 trainerRoutes.post('/', authenticate, authorize(['ADMIN']), TrainersController.createTrainer);
+trainerRoutes.get('/', authenticate, authorize(['ADMIN']), TrainersController.getAllTrainers);
