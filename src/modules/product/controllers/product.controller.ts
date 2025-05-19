@@ -8,6 +8,8 @@ import { deleteProductService } from '../services/deleteProduct.service';
 import { UpdateProductData } from '../interfaces/updatedProduct.interface';
 import { UpdateProductOptions } from '../interfaces/updateProductOptions.interface';
 import { updateProductService } from '../services/updateProduct.service';
+import { productSearchSchema } from '../schemas/productPagination.schema';
+import { searchProductsService } from '../services/searchProduct.service';
 
 export class ProductController {
   static async getAllProducts(_: Request, res: Response) {
@@ -58,5 +60,15 @@ export class ProductController {
     await deleteProductService(id);
 
     res.sendStatus(HttpCode.NO_CONTENT);
+  }
+
+  static async searchProducts(req: Request, res: Response) {
+    const { searchTerm } = await validateSchema(productSearchSchema, req.query);
+
+    const products = await searchProductsService(searchTerm);
+
+    res.json({
+      products,
+    });
   }
 }

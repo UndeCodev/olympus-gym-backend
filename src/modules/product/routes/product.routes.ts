@@ -6,6 +6,9 @@ import { multerErrorHandler } from '../../../shared/middlewares/multerError';
 
 export const productRoutes = Router();
 
+// Specific routes first
+productRoutes.get('/search', ProductController.searchProducts);
+
 productRoutes.get('/', ProductController.getAllProducts);
 productRoutes.get('/:id', ProductController.getProductById);
 

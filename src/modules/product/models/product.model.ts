@@ -61,4 +61,20 @@ export class ProductModel {
       await tx.product.delete({ where: { id } });
     });
   }
+
+  static async searchProducts(searchTerm: string) {
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [{ name: { contains: searchTerm } }, { description: { contains: searchTerm } }],
+      },
+      include: {
+        category: true,
+        images: true,
+      },
+      omit: { categoryId: true },
+      take: 10, // Limit of results
+    });
+
+    return products;
+  }
 }
