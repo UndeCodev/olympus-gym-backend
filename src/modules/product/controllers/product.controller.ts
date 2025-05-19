@@ -8,8 +8,9 @@ import { deleteProductService } from '../services/deleteProduct.service';
 import { UpdateProductData } from '../interfaces/updatedProduct.interface';
 import { UpdateProductOptions } from '../interfaces/updateProductOptions.interface';
 import { updateProductService } from '../services/updateProduct.service';
-import { productSearchSchema } from '../schemas/productPagination.schema';
+import { productPaginationSchema, productSearchSchema } from '../schemas/productPagination.schema';
 import { searchProductsService } from '../services/searchProduct.service';
+import { getPaginatedProductsService } from '../services/getPaginatedProducts.service';
 
 export class ProductController {
   static async getAllProducts(_: Request, res: Response) {
@@ -70,5 +71,13 @@ export class ProductController {
     res.json({
       products,
     });
+  }
+
+  static async getPaginatedProducts(req: Request, res: Response) {
+    const queryParams = await validateSchema(productPaginationSchema, req.query);
+
+    const result = await getPaginatedProductsService(queryParams);
+
+    res.json(result);
   }
 }

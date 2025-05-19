@@ -1,5 +1,6 @@
-import { PrismaClient } from '../../../../generated/prisma';
+import { PrismaClient, ProductStatus } from '../../../../generated/prisma';
 import { CreateProduct } from '../interfaces/createProduct.type';
+import { ProductPaginationOptions } from '../interfaces/productsPagination.interface';
 import { UpdateProductData } from '../interfaces/updatedProduct.interface';
 
 const prisma = new PrismaClient();
@@ -76,5 +77,56 @@ export class ProductModel {
     });
 
     return products;
+  }
+
+  static async getPaginatedProducts(options: ProductPaginationOptions) {
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      categoryId,
+      minPrice,
+      maxPrice,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = options;
+
+    // Construcción tipada correctamente del objeto where
+    const where = {
+      AND: [
+        {
+          OR: [{ name: { contains: search } }, { description: { contains: search } }],
+        },
+        ...(categoryId ? [{ categoryId }] : []),
+        ...(minPrice ? [{ price: { gte: minPrice } }] : []),
+        ...(maxPrice ? [{ price: { lte: maxPrice } }] : []),
+        ...(status ? [{ status: status as ProductStatus }] : []),
+      ],
+    };
+
+    const [total, products] = await Promise.all([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          category: true,
+          images: true,
+        },
+      }),
+    ]);
+
+    return {
+      data: products,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }

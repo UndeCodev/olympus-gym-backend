@@ -8,6 +8,7 @@ export const productRoutes = Router();
 
 // Specific routes first
 productRoutes.get('/search', ProductController.searchProducts);
+productRoutes.get('/paginated', ProductController.getPaginatedProducts);
 
 productRoutes.get('/', ProductController.getAllProducts);
 productRoutes.get('/:id', ProductController.getProductById);
