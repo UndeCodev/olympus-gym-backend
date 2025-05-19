@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
-import { authenticate } from '../../../shared/middlewares/authenticate';
+import { authenticate } from '../middlewares/authenticate';
 import { createRateLimiter } from '../../../shared/utils/rateLimit';
 
 export const authRoutes = Router();

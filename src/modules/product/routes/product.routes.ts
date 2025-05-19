@@ -3,6 +3,8 @@ import { ProductController } from '../controllers/product.controller';
 import upload from '../../../shared/config/multer';
 import { validateProductImages } from '../middlewares/validateProductImages';
 import { multerErrorHandler } from '../../../shared/middlewares/multerError';
+import { authorize } from '../../auth/middlewares/authorize';
+import { authenticate } from '../../auth/middlewares/authenticate';
 
 export const productRoutes = Router();
 
@@ -15,6 +17,8 @@ productRoutes.get('/:id', ProductController.getProductById);
 
 productRoutes.post(
   '/',
+  authenticate,
+  authorize(['ADMIN']),
   upload.array('images', 5),
   multerErrorHandler,
   validateProductImages('create'),
@@ -23,10 +27,12 @@ productRoutes.post(
 
 productRoutes.patch(
   '/:id',
+  authenticate,
+  authorize(['ADMIN']),
   upload.array('newImages', 5),
   multerErrorHandler,
   validateProductImages('update'),
   ProductController.updateProduct,
 );
 
-productRoutes.delete('/:id', ProductController.deleteProductById);
+productRoutes.delete('/:id', authenticate, authorize(['ADMIN']), ProductController.deleteProductById);

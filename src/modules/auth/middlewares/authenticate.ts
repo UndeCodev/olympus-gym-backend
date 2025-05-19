@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../../core/errors/AppError';
-import { HttpCode } from '../interfaces/HttpCode';
-import { tokenService } from '../services/tokens.service';
+import { AppError } from '../../../core/errors/AppError';
+import { HttpCode } from '../../../shared/interfaces/HttpCode';
+import { tokenService } from '../../../shared/services/tokens.service';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
