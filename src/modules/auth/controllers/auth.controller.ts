@@ -170,8 +170,6 @@ export class AuthController {
   static async verifyEmail(req: Request, res: Response) {
     const { token } = await validateSchema(verifyTokenSchema, { token: req.params.token });
 
-    console.log(req.params.token);
-
     await verifyEmailService(token);
 
     res.status(HttpCode.OK).json({

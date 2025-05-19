@@ -10,8 +10,6 @@ export const validateProductImages = (action: 'create' | 'update') => {
     const files = req.files as Express.Multer.File[];
 
     if (action === 'create') {
-      console.log(files);
-
       if (!req.files || req.files.length === 0) {
         throw new AppError({
           httpCode: HttpCode.BAD_REQUEST,

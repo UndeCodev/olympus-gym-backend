@@ -17,8 +17,6 @@ class TokenService {
   }
 
   public generateVerificationToken(userId: number): string {
-    console.log(this.secret);
-
     return jwt.sign({ id: userId }, this.secret, { expiresIn: '1h' });
   }
 
