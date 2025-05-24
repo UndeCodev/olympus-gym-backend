@@ -4,6 +4,7 @@ import { AppError } from '../../../core/errors/AppError';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { AuthModel } from '../../auth/models/auth.model';
 import { UpdateTrainerData } from '../interfaces/updateTrainer.interface';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,17 @@ export class TrainerModel {
       });
     }
 
-    const trainer = await prisma.user.create({ data: { ...trainerData, rol: 'MOD' } });
+    const hashedPassword = await bcrypt.hash(trainerData.password, 10);
+
+    trainerData.password = hashedPassword;
+
+    const trainer = await prisma.user.create({
+      data: { ...trainerData, rol: 'MOD', emailVerified: true },
+      omit: {
+        password: true,
+        refreshToken: true,
+      },
+    });
     return trainer;
   }
 
