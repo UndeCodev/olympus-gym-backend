@@ -12,13 +12,13 @@ export const requestPasswordResetService = async (email: string) => {
   if (!user) {
     throw new AppError({
       httpCode: HttpCode.NOT_FOUND,
-      description: 'El correo electrónico no esta registrado',
+      description: 'El correo electrónico no está registrado',
     });
   }
 
   const passwordResetToken = tokenService.generateVerificationToken(user.id);
 
-  const url = `${APP_ORIGIN}/auth/reset-password/${passwordResetToken}`;
+  const url = `${APP_ORIGIN}/autenticacion/restablecer-contrasena/${passwordResetToken}`;
 
   await sendEmail({ to: user.email, ...getPasswordResetTemplate(url) });
 };

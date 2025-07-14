@@ -1,6 +1,12 @@
 import cors from 'cors';
 
-const ACCPETED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'];
+const ACCPETED_ORIGINS = [
+  'http://localhost:5173',
+  'https://olympus-gym-atlapexco.com',
+  'https://b69f2ed1248f.ngrok-free.app',
+  'https://alexa.amazon.com',
+  'https://developer.amazon.com',
+];
 
 export const corsMiddleware = ({ acceptedOrigins = ACCPETED_ORIGINS } = {}) =>
   cors({

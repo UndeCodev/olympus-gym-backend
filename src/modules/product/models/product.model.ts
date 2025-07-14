@@ -9,8 +9,19 @@ export class ProductModel {
   static async getProductById(id: number) {
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { category: true, images: true },
-      omit: { categoryId: true },
+      include: {
+        images: true,
+        category: {
+          select: { id: true, name: true },
+        },
+        brand: {
+          select: { id: true, name: true },
+        },
+        presentation: {
+          select: { id: true, name: true },
+        },
+      },
+      omit: { categoryId: true, brandId: true, presentationId: true },
     });
 
     return product;
@@ -24,14 +35,26 @@ export class ProductModel {
 
   static async getAllProducts() {
     const products = await prisma.product.findMany({
-      include: { category: true, images: true },
-      omit: { categoryId: true },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        stock: true,
+        status: true,
+        category: { select: { name: true } },
+        images: {
+          select: { url: true },
+          where: { isPrimary: true },
+          take: 1,
+        },
+      },
     });
+
     return products;
   }
 
   static async createProduct(productData: CreateProduct) {
-    const { name, description, stock, categoryId, price, images: imagesData } = productData;
+    const { name, description, stock, categoryId, price, brandId, presentationId, images: imagesData } = productData;
 
     const product = await prisma.product.create({
       data: {
@@ -40,13 +63,21 @@ export class ProductModel {
         price,
         stock,
         categoryId,
+        brandId,
+        presentationId,
         images: {
           create: imagesData,
         },
       },
       include: {
-        images: true,
+        category: true,
+        images: {
+          select: { url: true },
+          where: { isPrimary: true },
+          take: 1,
+        },
       },
+      omit: { categoryId: true },
     });
 
     return product;
@@ -69,10 +100,22 @@ export class ProductModel {
         OR: [{ name: { contains: searchTerm } }, { description: { contains: searchTerm } }],
       },
       include: {
-        category: true,
-        images: true,
+        images: {
+          select: { url: true },
+          where: { isPrimary: true },
+          take: 1,
+        },
+        category: {
+          select: { id: true, name: true },
+        },
+        brand: {
+          select: { id: true, name: true },
+        },
+        presentation: {
+          select: { id: true, name: true },
+        },
       },
-      omit: { categoryId: true },
+      omit: { categoryId: true, brandId: true, presentationId: true },
       take: 10, // Limit of results
     });
 
@@ -92,7 +135,6 @@ export class ProductModel {
       sortOrder = 'desc',
     } = options;
 
-    // Construcción tipada correctamente del objeto where
     const where = {
       AND: [
         {
@@ -113,9 +155,22 @@ export class ProductModel {
         take: limit,
         orderBy: { [sortBy]: sortOrder },
         include: {
-          category: true,
-          images: true,
+          images: {
+            select: { url: true },
+            where: { isPrimary: true },
+            take: 1,
+          },
+          category: {
+            select: { id: true, name: true },
+          },
+          brand: {
+            select: { id: true, name: true },
+          },
+          presentation: {
+            select: { id: true, name: true },
+          },
         },
+        omit: { categoryId: true, brandId: true, presentationId: true },
       }),
     ]);
 

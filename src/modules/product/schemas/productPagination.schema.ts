@@ -12,6 +12,6 @@ export const productPaginationSchema = z.object({
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
   status: z.enum(['STOCK', 'OUT_OF_STOCK', 'LOW_STOCK']).optional(),
-  sortBy: z.enum(['name', 'price', 'createdAt']).optional(),
+  sortBy: z.enum(['name', 'price']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });

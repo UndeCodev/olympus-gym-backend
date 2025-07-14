@@ -25,7 +25,6 @@ export const validateRefreshTokenSchema = z.object({ refreshToken: z.string() })
 export const verifyTokenSchema = z.object({ token: z.string() });
 
 export const resetPasswordSchema = verifyTokenSchema.pick({ token: true }).extend({
-  password: z.string(),
   newPassword: z
     .string()
     .min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
@@ -34,4 +33,4 @@ export const resetPasswordSchema = verifyTokenSchema.pick({ token: true }).exten
     .regex(/[^A-Za-z0-9]/, { message: 'La contraseña debe contener al menos un carácter especial' }),
 });
 
-export const changePasswordSchema = resetPasswordSchema.pick({ password: true, newPassword: true });
+export const changePasswordSchema = resetPasswordSchema.pick({ newPassword: true } ).extend({ password: z.string() });

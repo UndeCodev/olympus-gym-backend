@@ -8,7 +8,7 @@ export interface ProductPaginationOptions {
   minPrice?: number;
   maxPrice?: number;
   status?: 'STOCK' | 'OUT_OF_STOCK' | 'LOW_STOCK';
-  sortBy?: 'name' | 'price' | 'createdAt';
+  sortBy?: 'name' | 'price';
   sortOrder?: 'asc' | 'desc';
 }
 

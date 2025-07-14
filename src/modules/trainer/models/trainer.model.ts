@@ -19,7 +19,7 @@ export class TrainerModel {
 
     if (emailFound) {
       throw new AppError({
-        httpCode: HttpCode.CONFLIT,
+        httpCode: HttpCode.CONFLICT,
         description: 'El correo electronico ya esta registrado',
       });
     }
@@ -35,6 +35,7 @@ export class TrainerModel {
         refreshToken: true,
       },
     });
+
     return trainer;
   }
 

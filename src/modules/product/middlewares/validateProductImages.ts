@@ -1,9 +1,11 @@
-// src/modules/products/middlewares/validateProductImages.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../../core/errors/AppError';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { MAX_IMAGES_PER_PRODUCT } from '../constants/maxImagesPerProduct';
 import { ProductModel } from '../models/product.model';
+import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
+import { updateProductSchema } from '../schemas/product.schema';
+
 
 export const validateProductImages = (action: 'create' | 'update') => {
   return async (req: Request, _: Response, next: NextFunction) => {
@@ -30,7 +32,7 @@ export const validateProductImages = (action: 'create' | 'update') => {
         return next();
       }
 
-      const deletedImages = req.body.deletedImages ? JSON.parse(req.body.deletedImages) : [];
+      const { deletedImages } = await validateSchema(updateProductSchema, req.body);
 
       // Obtener el producto actual para saber cuántas imágenes tiene
       const productId = req.params.id;
@@ -44,7 +46,7 @@ export const validateProductImages = (action: 'create' | 'update') => {
       }
 
       const currentImagesCount = product.images.length;
-      const imagesToDeleteCount = deletedImages.length;
+      const imagesToDeleteCount = deletedImages?.length ?? 0;
       const newImagesCount = files.length;
 
       const totalImagesAfterUpdate = currentImagesCount - imagesToDeleteCount + newImagesCount;

@@ -19,7 +19,7 @@ export const createProductService = async (productData: CreateProduct, imagesToU
 
   if (existsProduct) {
     throw new AppError({
-      httpCode: HttpCode.CONFLIT,
+      httpCode: HttpCode.CONFLICT,
       description: `El producto con el nombre ${productData.name} ya existe`,
     });
   }
@@ -34,5 +34,7 @@ export const createProductService = async (productData: CreateProduct, imagesToU
   // Upload images to cloudinary
   const images = await uploadMultipleFilesToCloudinary(imagesToUpload, 'products', productData.primaryImageIndex);
 
-  await ProductModel.createProduct({ ...productData, images });
+  const newProduct = await ProductModel.createProduct({ ...productData, images });
+
+  return newProduct;
 };

@@ -8,10 +8,10 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 
+app.use(corsMiddleware());
 app.disable('x-powered-by');
 app.use(cookieParser());
 app.use(express.json());
-app.use(corsMiddleware());
 app.use(morgan('dev'));
 
 // Routes
@@ -27,3 +27,5 @@ app.use(errorHandlerMiddleware);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+export default app;

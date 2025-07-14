@@ -31,22 +31,37 @@ export class ProductController {
     const images = req.files as Express.Multer.File[];
     const productData = await validateSchema(createProductSchema, req.body);
 
-    await createProductService(productData, images);
+    const productCreated = await createProductService(productData, images);
 
-    res.sendStatus(HttpCode.CREATED);
+    res.json({
+      productCreated,
+    });
   }
 
   static async updateProduct(req: Request, res: Response) {
     const { id } = await validateSchema(idProductSchema, req.params);
-    const { name, description, price, stock, categoryId, deletedImages, newPrimaryImageId } = await validateSchema(
-      updateProductSchema,
-      req.body,
-    );
+    const {
+      name,
+      description,
+      price,
+      stock,
+      categoryId,
+      presentationId,
+      brandId,
+      deletedImages,
+      newPrimaryImageId,
+      existingPrimaryImageId,
+    } = await validateSchema(updateProductSchema, req.body);
 
     const files = req.files as Express.Multer.File[];
 
-    const updateData: UpdateProductData = { name, description, price, stock, categoryId };
-    const updateOptions: UpdateProductOptions = { deletedImages, newPrimaryImageId, newImages: files };
+    const updateData: UpdateProductData = { name, description, price, stock, categoryId, presentationId, brandId };
+    const updateOptions: UpdateProductOptions = {
+      deletedImages,
+      newPrimaryImageId,
+      newImages: files,
+      existingPrimaryImageId,
+    };
 
     const updatedProduct = await updateProductService(id, updateData, updateOptions);
 

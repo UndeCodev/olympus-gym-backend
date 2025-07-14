@@ -5,6 +5,8 @@ export interface Product {
   price: number;
   stock: number;
   categoryId: number;
+  brandId: number;
+  presentationId: number;
   status: ProductStatus;
   images?: {
     url: string;

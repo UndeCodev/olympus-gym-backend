@@ -18,14 +18,14 @@ export const sendVerificationEmailService = async (email: string) => {
 
   if (user.emailVerified) {
     throw new AppError({
-      httpCode: HttpCode.CONFLIT,
+      httpCode: HttpCode.CONFLICT,
       description: 'El correo electrónico ya ha sido verificado',
     });
   }
 
   const verificationToken = tokenService.generateVerificationToken(user.id);
 
-  const url = `${APP_ORIGIN}/auth/verify-email/${verificationToken}`;
+  const url = `${APP_ORIGIN}/autenticacion/${verificationToken}`;
 
   await sendEmail({ to: user.email, ...getVerifyEmailTemplate(url) });
 };

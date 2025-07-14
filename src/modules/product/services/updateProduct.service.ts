@@ -34,10 +34,15 @@ export const updateProductService = async (
     }
   }
 
-  if (productFound.images.length <= 3 && options.deletedImages && options.deletedImages.length > 0) {
+  if (
+    productFound.images.length <= 1 &&
+    options.deletedImages &&
+    options.deletedImages.length > 0 &&
+    !options.newImages
+  ) {
     throw new AppError({
       httpCode: HttpCode.BAD_REQUEST,
-      description: 'No puedes eliminar imagenes de un producto con menos de 3 imágenes',
+      description: 'No puedes eliminar imagenes de un producto con menos de 1 imágenes',
     });
   }
 
@@ -63,8 +68,10 @@ export const updateProductService = async (
   }
 
   // 5. Update primary image
-  if (options.newPrimaryImageId) {
-    await ProductImagesModel.updateProductPrimaryImage(productId, options.newPrimaryImageId);
+  if (options.existingPrimaryImageId) {
+    console.log(options.existingPrimaryImageId);
+
+    await ProductImagesModel.updateProductPrimaryImage(productId, options.existingPrimaryImageId);
   }
 
   // 6. Return updated product

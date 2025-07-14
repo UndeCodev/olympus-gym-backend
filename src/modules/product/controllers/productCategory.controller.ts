@@ -1,16 +1,23 @@
 import { Request, Response } from 'express';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
-import { idProductCategorySchema, nameProductCategorySchema } from '../schemas/productCategory.schema';
+import {
+  createProductCategorySchema,
+  idProductCategorySchema,
+  updateProductCategorySchema,
+} from '../schemas/productCategory.schema';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { ProductCategoryModel } from '../models/productCategory.model';
+import { ProductCategoryPaginationOptions } from '../interfaces/productCategoryPagination.schema';
 
 export class ProductCategoryController {
   static async createCategory(req: Request, res: Response) {
-    const { name } = await validateSchema(nameProductCategorySchema, req.body);
+    const { name, description, isActive } = await validateSchema(createProductCategorySchema, req.body);
 
-    await ProductCategoryModel.createCategory(name);
+    const categoryCreated = await ProductCategoryModel.createCategory(name, description, isActive);
 
-    res.sendStatus(HttpCode.CREATED);
+    res.json({
+      categoryCreated,
+    });
   }
 
   static async getAllCategories(_: Request, res: Response) {
@@ -19,6 +26,18 @@ export class ProductCategoryController {
     res.json({
       categories,
     });
+  }
+
+  static async searchCategories(req: Request, res: Response) {
+    const queryParams = await validateSchema(ProductCategoryPaginationOptions, req.query);
+
+    const result = await ProductCategoryModel.getPaginatedCategories(
+      queryParams.searchTerm,
+      queryParams.page,
+      queryParams.limit,
+    );
+
+    res.json(result);
   }
 
   static async getCategoryById(req: Request, res: Response) {
@@ -33,9 +52,9 @@ export class ProductCategoryController {
 
   static async updateCategoryById(req: Request, res: Response) {
     const { id } = await validateSchema(idProductCategorySchema, req.params);
-    const { name } = await validateSchema(nameProductCategorySchema, req.body);
+    const { name, description, isActive } = await validateSchema(updateProductCategorySchema, req.body);
 
-    const categoryUpdated = await ProductCategoryModel.updateCategory(id, name);
+    const categoryUpdated = await ProductCategoryModel.updateCategory(id, name, description, isActive);
 
     res.json({
       categoryUpdated,

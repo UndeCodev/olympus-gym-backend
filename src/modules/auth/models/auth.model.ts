@@ -24,6 +24,8 @@ export class AuthModel {
         email: true,
         phoneNumber: true,
         rol: true,
+        emailVerified: true,
+        verifyCode: true
       },
     });
     return user;
@@ -45,6 +47,8 @@ export class AuthModel {
         email: true,
         phoneNumber: true,
         rol: true,
+        emailVerified: true,
+        verifyCode: true
       },
     });
     return user;
@@ -55,7 +59,7 @@ export class AuthModel {
 
     if (existingUser) {
       throw new AppError({
-        httpCode: HttpCode.CONFLIT,
+        httpCode: HttpCode.CONFLICT,
         description: 'El correo electrónico ya está registrado',
       });
     }
@@ -96,7 +100,7 @@ export class AuthModel {
       });
     }
 
-    const { password: _, emailVerified, twoFactorEnabled, refreshToken, ...userWithoutPassword } = user;
+    const { password: _, twoFactorEnabled, refreshToken, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
   }
@@ -113,7 +117,7 @@ export class AuthModel {
 
     if (userFound.emailVerified) {
       throw new AppError({
-        httpCode: HttpCode.CONFLIT,
+        httpCode: HttpCode.CONFLICT,
         description: 'El correo electrónico ya ha sido verificado',
       });
     }
@@ -124,13 +128,31 @@ export class AuthModel {
     });
   }
 
-  static async resetPassword(id: number, password: string, newPassword: string) {
+  static async resetPassword(id: number, newPassword: string) {
     const userFound = await this.findUserById(id);
 
     if (!userFound) {
       throw new AppError({
         httpCode: HttpCode.NOT_FOUND,
-        description: 'No se encontro el usuario',
+        description: 'No se encontró el usuario',
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword },
+    });
+  }
+
+  static async changePassword(id: number, password: string, newPassword: string) {
+    const userFound = await this.findUserById(id);
+
+    if (!userFound) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: 'No se encontró el usuario',
       });
     }
 

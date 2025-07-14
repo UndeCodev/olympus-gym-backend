@@ -110,7 +110,7 @@ export class AuthController {
     const refreshTokenFound = await tokenService.findRefreshToken(refreshTokenCookie);
 
     // Detected refresh token reuse
-    if (!refreshTokenFound) {
+    if (refreshTokenFound === null) {
       jwt.verify(
         refreshTokenCookie,
         String(JWT_SECRET_REFRESH),
@@ -153,6 +153,8 @@ export class AuthController {
 
         await tokenService.storeRefreshToken(newRefreshToken, id);
 
+        const user = await AuthModel.findUserByIdWithouSensitiveData(id);
+
         res.cookie('refreshToken', newRefreshToken, {
           httpOnly: true,
           sameSite: 'lax',
@@ -162,6 +164,7 @@ export class AuthController {
 
         res.json({
           accessToken: newAccessToken,
+          user,
         });
       },
     );
@@ -194,11 +197,9 @@ export class AuthController {
   }
 
   static async resetPassword(req: Request, res: Response) {
-    const { token, password, newPassword } = await validateSchema(resetPasswordSchema, req.body);
+    const { token, newPassword } = await validateSchema(resetPasswordSchema, req.body);
 
-    await resetPasswordService(token, password, newPassword);
-
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
+    await resetPasswordService(token, newPassword);
 
     res.json({ message: 'Contraseña cambiada correctamente' });
   }
@@ -206,9 +207,9 @@ export class AuthController {
   static async changePassword(req: Request, res: Response) {
     const userId = res.locals.user;
 
-    const { password, newPassword } = await validateSchema(changePasswordSchema, req.body);
+    const { password } = await validateSchema(changePasswordSchema, req.body);
 
-    await changePasswordService(userId, password, newPassword);
+    await changePasswordService(userId, password);
 
     res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
 

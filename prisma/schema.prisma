@@ -9,38 +9,82 @@ datasource db {
 }
 
 model user {
-  id               Int      @id @default(autoincrement())
-  firstName        String
-  lastName         String
-  phoneNumber      String
-  birthDate        DateTime
-  email            String   @unique
-  password         String
-  emailVerified    Boolean  @default(false)
-  twoFactorEnabled Boolean  @default(false)
-  rol              Rol      @default(USER)
-  refreshToken     String?  @unique
+  id                         Int                          @id @default(autoincrement())
+  firstName                  String
+  lastName                   String
+  phoneNumber                String
+  birthDate                  DateTime
+  email                      String                       @unique
+  password                   String
+  verifyCode                 String?                      @unique
+  emailVerified              Boolean                      @default(false)
+  twoFactorEnabled           Boolean                      @default(false)
+  rol                        Rol                          @default(USER)
+  refreshToken               String?                      @unique
+  cart                       cart[]
+  reservations               reservation[]
+  employee                   employee?
+  reservation_status_history reservation_status_history[]
+}
+
+model employee {
+  id                   Int                          @id @default(autoincrement())
+  user                 user                         @relation(fields: [userId], references: [id])
+  userId               Int                          @unique
+  isActive             Boolean                      @default(false)
+  assignedReservations reservation[]
+  statusChanges        reservation_status_history[]
+
+  @@map("employees")
 }
 
 model product {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
-  description String
-  price       Float
-  category    product_category @relation(fields: [categoryId], references: [id])
-  categoryId  Int
-  stock       Int
-  status      ProductStatus    @default(STOCK)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  images      product_image[]
+  id               Int                  @id @default(autoincrement())
+  name             String               @unique
+  description      String
+  price            Float
+  category         product_category     @relation(fields: [categoryId], references: [id])
+  categoryId       Int
+  stock            Int
+  status           ProductStatus        @default(STOCK)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  images           product_image[]
+  cart_item        cart_item[]
+  reservation_item reservation_item[]
+  brand            product_brand        @relation(fields: [brandId], references: [id])
+  brandId          Int
+  presentation     product_presentation @relation(fields: [presentationId], references: [id])
+  presentationId   Int
 }
 
 model product_category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   products product[]
+}
+
+model product_brand {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  product   product[]
+}
+
+model product_presentation {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  product   product[]
 }
 
 model product_image {
@@ -54,10 +98,86 @@ model product_image {
   updatedAt DateTime @updatedAt
 }
 
+model cart {
+  id        Int         @id @default(autoincrement())
+  user      user?       @relation(fields: [userId], references: [id])
+  userId    Int?        @unique
+  items     cart_item[]
+  total     Float       @default(0.0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("carts")
+}
+
+model cart_item {
+  id        Int     @id @default(autoincrement())
+  cart      cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    Int
+  product   product @relation(fields: [productId], references: [id])
+  productId Int
+  price     Float
+  quantity  Int     @default(1)
+  name      String
+  category  String
+
+  @@map("cart_items")
+}
+
+model reservation {
+  id                     Int                          @id @default(autoincrement())
+  user                   user                         @relation(fields: [userId], references: [id])
+  userId                 Int
+  items                  reservation_item[]
+  status                 ReservationStatus            @default(PENDING)
+  paymentMethod          PaymentMethod                @default(MERCADO_PAGO)
+  paymentStatus          PaymentStatus                @default(PENDING)
+  subtotal               Float                        @default(0.0)
+  taxAmount              Float                        @default(0.0)
+  totalAmount            Float
+  mercadoPagoReferenceId String?                      @unique
+  expirationDate         DateTime?
+  pickupCode             String?
+  employee               employee?                    @relation(fields: [employeeId], references: [id])
+  employeeId             Int?
+  statusHistory          reservation_status_history[]
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+
+  @@index([userId, mercadoPagoReferenceId, employeeId])
+}
+
+model reservation_status_history {
+  id            Int               @id @default(autoincrement())
+  reservation   reservation       @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservationId Int
+  status        ReservationStatus
+  changedBy     user?             @relation(fields: [changedById], references: [id])
+  changedById   Int?
+  notes         String?
+  createdAt     DateTime          @default(now())
+  employee      employee?         @relation(fields: [employeeId], references: [id])
+  employeeId    Int?
+
+  @@index([reservationId, employeeId])
+}
+
+model reservation_item {
+  id            Int         @id @default(autoincrement())
+  reservation   reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservationId Int
+  product       product     @relation(fields: [productId], references: [id])
+  productId     Int
+  quantity      Int
+  price         Float
+  name          String
+  category      String
+}
+
 enum ProductStatus {
   STOCK
-  ALMOST_OUT
-  UNAVAILABLE
+  LOW_STOCK
+  OUT_OF_STOCK
 }
 
 enum Rol {
@@ -65,4 +185,24 @@ enum Rol {
   MEMBER
   MOD
   ADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  PAID
+  READY
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  MERCADO_PAGO
 }

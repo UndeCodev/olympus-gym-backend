@@ -5,6 +5,7 @@ import { validateProductImages } from '../middlewares/validateProductImages';
 import { multerErrorHandler } from '../../../shared/middlewares/multerError';
 import { authorize } from '../../auth/middlewares/authorize';
 import { authenticate } from '../../auth/middlewares/authenticate';
+import { requireAuth } from '../../auth/middlewares/requireAuth';
 
 export const productRoutes = Router();
 
@@ -18,6 +19,7 @@ productRoutes.get('/:id', ProductController.getProductById);
 productRoutes.post(
   '/',
   authenticate,
+  requireAuth,
   authorize(['ADMIN']),
   upload.array('images', 5),
   multerErrorHandler,
@@ -28,6 +30,7 @@ productRoutes.post(
 productRoutes.patch(
   '/:id',
   authenticate,
+  requireAuth,
   authorize(['ADMIN']),
   upload.array('newImages', 5),
   multerErrorHandler,
@@ -35,4 +38,4 @@ productRoutes.patch(
   ProductController.updateProduct,
 );
 
-productRoutes.delete('/:id', authenticate, authorize(['ADMIN']), ProductController.deleteProductById);
+productRoutes.delete('/:id', authenticate, requireAuth, authorize(['ADMIN']), ProductController.deleteProductById);

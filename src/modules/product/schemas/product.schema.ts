@@ -10,6 +10,8 @@ export const createProductSchema = z.object({
   price: z.coerce.number().positive(),
   stock: z.coerce.number().positive(),
   categoryId: z.coerce.number().positive(),
+  brandId: z.coerce.number().positive(),
+  presentationId: z.coerce.number().positive(),
   primaryImageIndex: z.coerce.number().min(0).max(5).default(0),
 });
 
@@ -19,6 +21,9 @@ export const updateProductSchema = z.object({
   price: z.coerce.number().positive().optional(),
   stock: z.coerce.number().int().min(0).optional(),
   categoryId: z.coerce.number().positive().optional(),
+  brandId: z.coerce.number().positive(),
+  presentationId: z.coerce.number().positive(),
   deletedImages: z.array(z.coerce.number()).optional(),
   newPrimaryImageId: z.coerce.number().optional(),
+  existingPrimaryImageId: z.coerce.number().optional(),
 });

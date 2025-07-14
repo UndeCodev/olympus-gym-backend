@@ -4,4 +4,6 @@ export interface UpdateProductData {
   price?: number;
   stock?: number;
   categoryId?: number;
+  brandId?: number;
+  presentationId?: number;
 }
