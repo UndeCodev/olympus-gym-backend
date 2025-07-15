@@ -146,8 +146,8 @@ export class AuthModel {
     });
   }
 
-  static async changePassword(id: number, password: string, newPassword: string) {
-    const userFound = await this.findUserById(id);
+  static async changePassword(userId: number, oldPassword: string, newPassword: string) {
+    const userFound = await this.findUserById(userId);
 
     if (!userFound) {
       throw new AppError({
@@ -156,7 +156,7 @@ export class AuthModel {
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, userFound.password);
+    const isPasswordValid = await bcrypt.compare(oldPassword, userFound.password);
 
     if (!isPasswordValid) {
       throw new AppError({
@@ -168,7 +168,7 @@ export class AuthModel {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
-      where: { id },
+      where: { id: userId },
       data: { password: hashedPassword },
     });
   }

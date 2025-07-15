@@ -12,7 +12,7 @@ authRoutes.post('/register', AuthController.register);
 authRoutes.post('/login', AuthController.login);
 authRoutes.post('/logout', AuthController.logout);
 
-authRoutes.get('/me', authenticate, AuthController.getCurrentUser);
+authRoutes.get('/me', authenticate, requireAuth, AuthController.getCurrentUser);
 authRoutes.get('/refresh', AuthController.refreshToken);
 
 // Rate limit to 3 requests per 15 minutes
@@ -22,5 +22,3 @@ authRoutes.get('/verify-email/:token', AuthController.verifyEmail);
 // Rate limit to 3 requests per 15 minutes
 authRoutes.post('/request-password-reset', authLimiter, AuthController.requestPasswordReset);
 authRoutes.put('/reset-password', AuthController.resetPassword);
-
-authRoutes.put('/change-password', authenticate, requireAuth, AuthController.changePassword);

@@ -3,4 +3,5 @@ import { ProfileController } from "../controllers/profile.controller";
 
 export const profileRoutes = Router()
 
-profileRoutes.patch('/', ProfileController.updateProfile);
+profileRoutes.patch('/update-profile', ProfileController.updateProfile);
+profileRoutes.put('/change-password', ProfileController.changePassword);
