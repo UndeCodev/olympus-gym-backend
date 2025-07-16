@@ -4,4 +4,6 @@ export interface UpdateTrainerData {
   phoneNumber?: string;
   birthDate?: Date;
   email?: string;
+  password?: string;
+  isActive?: boolean
 }

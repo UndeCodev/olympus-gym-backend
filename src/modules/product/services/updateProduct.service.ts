@@ -69,8 +69,6 @@ export const updateProductService = async (
 
   // 5. Update primary image
   if (options.existingPrimaryImageId) {
-    console.log(options.existingPrimaryImageId);
-
     await ProductImagesModel.updateProductPrimaryImage(productId, options.existingPrimaryImageId);
   }
 
