@@ -1,4 +1,6 @@
 import { PrismaClient, ProductStatus } from '../../../../generated/prisma';
+import { AppError } from '../../../core/errors/AppError';
+import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { CreateProduct } from '../interfaces/createProduct.type';
 import { ProductPaginationOptions } from '../interfaces/productsPagination.interface';
 import { UpdateProductData } from '../interfaces/updatedProduct.interface';
@@ -28,7 +30,22 @@ export class ProductModel {
   }
 
   static async getProductByName(name: string) {
-    const product = await prisma.product.findUnique({ where: { name } });
+    const product = await prisma.product.findUnique({
+      where: { name },
+      include: {
+        images: true,
+        category: {
+          select: { id: true, name: true },
+        },
+        brand: {
+          select: { id: true, name: true },
+        },
+        presentation: {
+          select: { id: true, name: true },
+        },
+      },
+      omit: { categoryId: true, brandId: true, presentationId: true },
+    });
 
     return product;
   }
@@ -183,5 +200,88 @@ export class ProductModel {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  static async getProductRecommendations(productName: string, recommendations: Set<string>, top_n: number = 5) {
+    try {
+      if (recommendations.size === 0) {
+        const originalProduct = await this.getProductByName(productName);
+
+        if (originalProduct) {
+          return prisma.product.findMany({
+            where: {
+              categoryId: originalProduct.category.id,
+              name: { not: productName },
+            },
+            take: top_n,
+            include: {
+              images: {
+                select: { url: true },
+                where: { isPrimary: true },
+                take: 1,
+              },
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+            omit: {
+              categoryId: true,
+              brandId: true,
+              presentationId: true,
+              status: true,
+              stock: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          });
+        }
+
+        return []; // Product not found
+      }
+
+      // Return the top_n most similar products
+      const products = await prisma.product.findMany({
+        where: {
+          name: { in: Array.from(recommendations) },
+        },
+        include: {
+          images: {
+            select: { url: true },
+            where: { isPrimary: true },
+            take: 1,
+          },
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        omit: {
+          categoryId: true,
+          brandId: true,
+          presentationId: true,
+          status: true,
+          stock: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+
+      console.log({ recommendations });
+      
+      // const orderedProducts = recommendations.map((r) => {
+        // const p = productos.find((prod) => prod.name === r.name);
+        // return { ...p, lift: r.lift, confidence: r.confidence };
+      // });
+      return products;
+    } catch {
+      throw new AppError({
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: 'Error al obtener productos recomendados',
+      });
+    }
   }
 }

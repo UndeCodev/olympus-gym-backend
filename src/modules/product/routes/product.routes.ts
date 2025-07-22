@@ -27,6 +27,9 @@ productRoutes.post(
   ProductController.createProduct,
 );
 
+productRoutes.post('/get-recommendations', ProductController.getProductRecommendations);
+productRoutes.post('/get-cart-recommendations', ProductController.getCartRecommendations);
+
 productRoutes.patch(
   '/:id',
   authenticate,

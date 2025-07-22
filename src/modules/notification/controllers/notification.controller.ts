@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { NotificationModel } from '../../notifications/models/notification.model';
+import { NotificationModel } from '../models/notification.model';
 
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
 import { addCartItemSchema, userIdSchema, verificationSchema } from '../schemas/notification.schema';

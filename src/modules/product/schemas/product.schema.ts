@@ -27,3 +27,11 @@ export const updateProductSchema = z.object({
   newPrimaryImageId: z.coerce.number().optional(),
   existingPrimaryImageId: z.coerce.number().optional(),
 });
+
+export const getProductRecommendationsSchema = z.object({
+  productName: z.string(),
+});
+
+export const getProductCartRecommendationsSchema = z.object({
+  products: z.array(z.string()).nonempty(),
+})

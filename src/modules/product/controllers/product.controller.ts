@@ -1,7 +1,13 @@
 import { Request, Response } from 'express';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { validateSchema } from '../../../shared/utils/zodSchemaValidator';
-import { createProductSchema, idProductSchema, updateProductSchema } from '../schemas/product.schema';
+import {
+  createProductSchema,
+  getProductCartRecommendationsSchema,
+  getProductRecommendationsSchema,
+  idProductSchema,
+  updateProductSchema,
+} from '../schemas/product.schema';
 import { createProductService } from '../services/createProduct.service';
 import { ProductModel } from '../models/product.model';
 import { deleteProductService } from '../services/deleteProduct.service';
@@ -11,6 +17,8 @@ import { updateProductService } from '../services/updateProduct.service';
 import { productPaginationSchema, productSearchSchema } from '../schemas/productPagination.schema';
 import { searchProductsService } from '../services/searchProduct.service';
 import { getPaginatedProductsService } from '../services/getPaginatedProducts.service';
+import { getProductRecommendationsService } from '../services/getProductRecommendations.service';
+import { getCartRecommendationsService } from '../services/getCartRecommendations.service';
 
 export class ProductController {
   static async getAllProducts(_: Request, res: Response) {
@@ -94,5 +102,21 @@ export class ProductController {
     const result = await getPaginatedProductsService(queryParams);
 
     res.json(result);
+  }
+
+  static async getProductRecommendations(req: Request, res: Response) {
+    const { productName } = await validateSchema(getProductRecommendationsSchema, req.body);
+
+    const recommendations = await getProductRecommendationsService(productName);
+
+    res.json(recommendations);
+  }
+
+  static async getCartRecommendations(req: Request, res: Response) {
+    const { products } = await validateSchema(getProductCartRecommendationsSchema, req.body);
+
+    const recommendations = await getCartRecommendationsService(products);
+
+    res.json(recommendations)
   }
 }
