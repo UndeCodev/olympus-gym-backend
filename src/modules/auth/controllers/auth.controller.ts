@@ -19,6 +19,8 @@ import { verifyEmailService } from '../services/verifyEmail.service';
 import { sendVerificationEmailService } from '../services/sendEmailVerification.service';
 import { requestPasswordResetService } from '../services/requestPasswordReset.service';
 import { resetPasswordService } from '../services/resetPassword.service';
+import { loginService } from '../services/login.service';
+import { isMobileApp } from '../../../shared/utils/clientDetector';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
@@ -32,30 +34,33 @@ export class AuthController {
   static async login(req: Request, res: Response) {
     const { email, password } = await validateSchema(loginSchema, req.body);
 
-    const user = await AuthModel.login(email, password);
+    const mobileApp = isMobileApp(req);
 
-    if (req.cookies.refreshToken) {
-      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
+    if (req.cookies.refreshToken && !mobileApp) {
+      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: NODE_ENV === 'production' });
     }
 
-    const payload = { id: user.id, rol: user.rol };
+    const { accessToken, newRefreshToken, user } = await loginService(email, password);
 
-    const accessToken = tokenService.generateAccessToken(payload);
-    const newRefreshToken = tokenService.generateRefreshToken(payload);
+    if (mobileApp) {
+      res.json({
+        accessToken,
+        refreshToken: newRefreshToken,
+        user
+      })
+    } else {
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-    await tokenService.storeRefreshToken(newRefreshToken, user.id);
-
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.json({
-      accessToken,
-      user,
-    });
+      res.json({
+        accessToken,
+        user,
+      });
+    }
   }
 
   static async logout(req: Request, res: Response) {
