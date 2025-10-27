@@ -21,7 +21,7 @@ export class ProfileController {
 
     await changePasswordService(userId, oldPassword, newPassword);
 
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'lax', secure: NODE_ENV === 'production' });
+    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: NODE_ENV === 'production' });
     res.json({ message: 'Contraseña cambiada correctamente' });
   }
 }

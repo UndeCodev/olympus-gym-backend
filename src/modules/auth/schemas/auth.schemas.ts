@@ -32,3 +32,5 @@ export const resetPasswordSchema = verifyTokenSchema.pick({ token: true }).exten
     .regex(/[0-9]/, { message: 'La contraseña debe contener al menos un número' })
     .regex(/[^A-Za-z0-9]/, { message: 'La contraseña debe contener al menos un carácter especial' }),
 });
+
+export const refreshTokenSchema = z.object({ refreshToken: z.string() });
