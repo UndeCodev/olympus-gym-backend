@@ -66,24 +66,36 @@ export class AuthController {
   }
 
   static async logout(req: Request, res: Response) {
-    const refreshToken = req.cookies.refreshToken;
+    const mobileApp = isMobileApp(req);
+    let refreshToken = '';
+
+    if (mobileApp) {
+      const { refreshToken: token } = await validateSchema(refreshTokenSchema, req.body);
+
+      refreshToken = token;
+    } else {
+      refreshToken = req.cookies.refreshToken;
+    }
 
     if (!refreshToken) {
-      res.sendStatus(HttpCode.NO_CONTENT);
-      return;
+      throw new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: 'Refresh token required',
+      })
     }
 
     const foundUser = await tokenService.findRefreshToken(refreshToken);
 
+    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: NODE_ENV === 'production' });
+    
     if (!foundUser) {
-      res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: NODE_ENV === 'production' });
-      res.sendStatus(HttpCode.NO_CONTENT);
-      return;
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'Invalid refresh token',
+      })
     }
 
     await tokenService.deleteRefreshToken(foundUser.id);
-
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: NODE_ENV === 'production' });
 
     res.sendStatus(HttpCode.NO_CONTENT);
   }
@@ -168,7 +180,7 @@ export class AuthController {
           accessToken: newAccessToken,
           refreshToken: newRefreshToken,
           user,
-        })
+        });
       } else {
         res.cookie('refreshToken', newRefreshToken, {
           httpOnly: true,
