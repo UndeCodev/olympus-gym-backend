@@ -221,3 +221,9 @@ enum PaymentStatus {
 enum PaymentMethod {
   MERCADO_PAGO
 }
+
+/// ---- Muscle group  ----
+model muscle_group {
+  id        Int                 @id @default(autoincrement())
+  name      String              @unique
+}

@@ -10,6 +10,7 @@ import { cartRoutes } from '../../modules/cart/routes/cart.routes';
 import { notificationsRoutes } from '../../modules/notification/routes/notification.routes';
 import { profileRoutes } from '../../modules/profile/routes/profile.routes';
 import { companyInfoRoutes } from '../../modules/company_info/routes/company_info.routes';
+import { muscleGroupRoutes } from '../../modules/muscle_group/routes/muscle_group.routes';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/trainer', trainerRoutes);
 router.use('/notification', notificationsRoutes);
 router.use('/profile', authenticate, requireAuth, profileRoutes);
 router.use('/company-info', companyInfoRoutes);
+router.use('/muscle-group', authenticate, requireAuth, muscleGroupRoutes)
 
 export default router;
