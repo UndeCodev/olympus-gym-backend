@@ -9,18 +9,18 @@ datasource db {
 }
 
 model company_info {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   logo        String
   name        String
   slogan      String?
   address     String
   zip         String?
   phoneNumber String?
-  email       String    @unique
+  email       String   @unique
   schedule    Json
   socialMedia Json?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model user {
@@ -40,6 +40,8 @@ model user {
   reservations               reservation[]
   employee                   employee?
   reservation_status_history reservation_status_history[]
+  userRoutineAssignments     user_routine_assignment[]
+  exerciseLogs               exercise_log[]
 }
 
 model employee {
@@ -224,11 +226,112 @@ enum PaymentMethod {
 
 /// ---- Muscle group  ----
 model muscle_group {
-  id        Int                 @id @default(autoincrement())
-  name      String              @unique
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  exerciseGroups exercise_group[]
 }
 
 model difficulty_level {
-  id                      Int                       @id @default(autoincrement())
-  name                    String                    @unique
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  exerciseInstructions exercise_instruction[]
+}
+
+model exercise {
+  id             Int                       @id @default(autoincrement())
+  name           String                    @unique
+  description    String?
+  imageUrl       String?
+  muscleGroups   exercise_group[]
+  instructions   exercise_instruction[]
+  masterRoutines routine_exercise_master[]
+  exerciseLogs   exercise_log[]
+}
+
+model exercise_group {
+  exerciseId    Int
+  muscleGroupId Int
+  exercise      exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscleGroup   muscle_group @relation(fields: [muscleGroupId], references: [id], onDelete: Restrict) 
+
+  @@id([exerciseId, muscleGroupId])
+}
+
+model exercise_instruction {
+  id                Int @id @default(autoincrement())
+  exerciseId        Int
+  difficultyLevelId Int
+  sets              Int
+  repetitionsMin    Int
+  repetitionsMax    Int
+  restTimeSeconds   Int
+
+  exercise        exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade) 
+  difficultyLevel difficulty_level @relation(fields: [difficultyLevelId], references: [id], onDelete: Restrict) 
+
+  stepByStepInstructions step_by_step_instruction[]
+  importantTips          important_tip[]
+
+  @@unique([exerciseId, difficultyLevelId]) 
+}
+
+model step_by_step_instruction {
+  id                    Int                  @id @default(autoincrement())
+  exerciseInstructionId Int
+  order                 Int
+  instructionText       String
+  instruction           exercise_instruction @relation(fields: [exerciseInstructionId], references: [id], onDelete: Cascade)
+}
+
+model important_tip {
+  id                    Int                  @id @default(autoincrement())
+  exerciseInstructionId Int
+  tipText               String
+  instruction           exercise_instruction @relation(fields: [exerciseInstructionId], references: [id], onDelete: Cascade)
+}
+
+model master_routine {
+  id                   Int                       @id @default(autoincrement())
+  name                 String
+  daysOfTheWeek        String
+  estimatedTimeMinutes Int
+  usersAssigned        user_routine_assignment[]
+  exercisesInRoutine   routine_exercise_master[]
+}
+
+model routine_exercise_master {
+  masterRoutineId Int
+  exerciseId      Int
+  orderInRoutine  Int
+
+  masterRoutine master_routine @relation(fields: [masterRoutineId], references: [id])
+  exercise      exercise       @relation(fields: [exerciseId], references: [id])
+
+  @@id([masterRoutineId, exerciseId])
+}
+
+model user_routine_assignment {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  masterRoutineId Int
+  assignmentDate  DateTime @default(now())
+
+  user          user           @relation(fields: [userId], references: [id])
+  masterRoutine master_routine @relation(fields: [masterRoutineId], references: [id])
+
+  @@unique([userId, masterRoutineId])
+}
+
+model exercise_log {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  exerciseId    Int
+  date          DateTime @default(now())
+  completed     Boolean  @default(false)
+  setsCompleted Int      @default(0) // For partial tracking
+
+  user     user     @relation(fields: [userId], references: [id])
+  exercise exercise @relation(fields: [exerciseId], references: [id])
+
+  @@unique([userId, exerciseId, date]) 
 }
