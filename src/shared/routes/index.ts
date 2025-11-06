@@ -11,6 +11,7 @@ import { notificationsRoutes } from '../../modules/notification/routes/notificat
 import { profileRoutes } from '../../modules/profile/routes/profile.routes';
 import { companyInfoRoutes } from '../../modules/company_info/routes/company_info.routes';
 import { muscleGroupRoutes } from '../../modules/muscle_group/routes/muscle_group.routes';
+import { difficultyLevelRoutes } from '../../modules/difficulty_level/routes/difficulty_level.routes';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.use('/trainer', trainerRoutes);
 router.use('/notification', notificationsRoutes);
 router.use('/profile', authenticate, requireAuth, profileRoutes);
 router.use('/company-info', companyInfoRoutes);
-router.use('/muscle-group', authenticate, requireAuth, muscleGroupRoutes)
+router.use('/muscle-group', authenticate, requireAuth, muscleGroupRoutes);
+router.use('/difficulty-level', authenticate, requireAuth, difficultyLevelRoutes);
 
 export default router;

@@ -227,3 +227,8 @@ model muscle_group {
   id        Int                 @id @default(autoincrement())
   name      String              @unique
 }
+
+model difficulty_level {
+  id                      Int                       @id @default(autoincrement())
+  name                    String                    @unique
+}
