@@ -32,6 +32,8 @@ model user {
   email                      String                       @unique
   password                   String
   verifyCode                 String?                      @unique
+  profilePictureUrl          String?                      
+  profilePicturePublicId     String?                      
   emailVerified              Boolean                      @default(false)
   twoFactorEnabled           Boolean                      @default(false)
   rol                        Rol                          @default(USER)

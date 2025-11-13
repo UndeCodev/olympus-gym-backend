@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from '../../../../generated/prisma/runt
 import { AppError } from '../../../core/errors/AppError';
 import { HttpCode } from '../../../shared/interfaces/HttpCode';
 import { AuthModel } from '../../auth/models/auth.model';
+import { UpdateProfilePictureData } from '../interfaces/profile-picture.interface';
 import { ProfileUpdateRequestInterface } from '../interfaces/profile-update-request.interface';
 
 const prisma = new PrismaClient();
@@ -33,5 +34,35 @@ export class ProfileModel {
         });
       }
     }
+  }
+
+  static async getUserById(userId: number) {
+    return await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        profilePictureUrl: true,
+        profilePicturePublicId: true,
+      },
+    });
+  }
+
+  static async updateProfilePicture(data: UpdateProfilePictureData) {
+    return await prisma.user.update({
+      where: { id: data.userId },
+      data: {
+        profilePictureUrl: data.profilePictureUrl,
+        profilePicturePublicId: data.publicId,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        profilePictureUrl: true,
+      },
+    });
   }
 }

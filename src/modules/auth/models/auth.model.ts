@@ -48,7 +48,8 @@ export class AuthModel {
         phoneNumber: true,
         rol: true,
         emailVerified: true,
-        verifyCode: true
+        verifyCode: true,
+        profilePictureUrl: true
       },
     });
     return user;

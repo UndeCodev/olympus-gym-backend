@@ -2,8 +2,9 @@ import cors from 'cors';
 
 const ACCPETED_ORIGINS = [
   'http://localhost:5173',
+  'http://localhost:3000',
   'https://olympus-gym-atlapexco.com',
-  'https://b69f2ed1248f.ngrok-free.app',
+  'https://peppy-taiyaki-e15cc2.netlify.app',
   'https://alexa.amazon.com',
   'https://developer.amazon.com',
 ];

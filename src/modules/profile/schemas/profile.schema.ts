@@ -17,3 +17,7 @@ export const changePasswordSchema = z.object({
     .regex(/[0-9]/, { message: 'La contraseña debe contener al menos un número' })
     .regex(/[^A-Za-z0-9]/, { message: 'La contraseña debe contener al menos un carácter especial' }),
 })  
+
+export const uploadProfilePictureSchema = z.object({
+  userId: z.string().transform(Number).pipe(z.number().int().positive())
+});
