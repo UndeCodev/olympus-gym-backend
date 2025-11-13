@@ -13,6 +13,7 @@ import { companyInfoRoutes } from '../../modules/company_info/routes/company_inf
 import { muscleGroupRoutes } from '../../modules/muscle_group/routes/muscle_group.routes';
 import { difficultyLevelRoutes } from '../../modules/difficulty_level/routes/difficulty_level.routes';
 import { exerciseRoutes } from '../../modules/exercise/routes/exercise.routes';
+import masterRoutinesRoutes from '../../modules/master_routines/routes/master_routines.routes';
 
 const router = Router();
 
@@ -24,7 +25,8 @@ router.use('/notification', notificationsRoutes);
 router.use('/profile', authenticate, requireAuth, profileRoutes);
 router.use('/company-info', companyInfoRoutes);
 router.use('/muscle-group', authenticate, requireAuth, muscleGroupRoutes);
+router.use('/master-routine', authenticate, requireAuth, masterRoutinesRoutes);
 router.use('/difficulty-level', authenticate, requireAuth, difficultyLevelRoutes);
-router.use('/exercise', authenticate, requireAuth, exerciseRoutes)
+router.use('/exercise', authenticate, requireAuth, exerciseRoutes);
 
 export default router;
