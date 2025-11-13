@@ -14,6 +14,7 @@ import { muscleGroupRoutes } from '../../modules/muscle_group/routes/muscle_grou
 import { difficultyLevelRoutes } from '../../modules/difficulty_level/routes/difficulty_level.routes';
 import { exerciseRoutes } from '../../modules/exercise/routes/exercise.routes';
 import masterRoutinesRoutes from '../../modules/master_routines/routes/master_routines.routes';
+import userRoutinesRoutes from '../../modules/user_routines/routes/user_routine.routes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/muscle-group', authenticate, requireAuth, muscleGroupRoutes);
 router.use('/master-routine', authenticate, requireAuth, masterRoutinesRoutes);
 router.use('/difficulty-level', authenticate, requireAuth, difficultyLevelRoutes);
 router.use('/exercise', authenticate, requireAuth, exerciseRoutes);
+router.use('/user-routines', authenticate, requireAuth, userRoutinesRoutes);
 
 export default router;
