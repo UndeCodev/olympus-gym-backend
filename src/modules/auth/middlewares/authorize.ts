@@ -7,18 +7,19 @@ const prisma = new PrismaClient();
 
 export const authorize = (roles: string[]) => {
   return async (_: Request, res: Response, next: NextFunction) => {
-    const userId = res.locals.user;
+    const user = res.locals.user;
 
-    if (!userId) {
+    console.log({ user });
+    if (!user) {
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
         description: 'Auhtentication required',
       });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const userFound = await prisma.user.findUnique({ where: { id: user.id } });
 
-    if (!user || !roles.includes(user.rol)) {
+    if (!userFound || !roles.includes(userFound.rol)) {
       throw new AppError({
         httpCode: HttpCode.FORBIDDEN,
         description: 'Unauthorized access',

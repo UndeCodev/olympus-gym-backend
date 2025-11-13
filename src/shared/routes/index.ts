@@ -15,6 +15,8 @@ import { difficultyLevelRoutes } from '../../modules/difficulty_level/routes/dif
 import { exerciseRoutes } from '../../modules/exercise/routes/exercise.routes';
 import masterRoutinesRoutes from '../../modules/master_routines/routes/master_routines.routes';
 import userRoutinesRoutes from '../../modules/user_routines/routes/user_routine.routes';
+import exerciseLogRoutes from '../../modules/exercise_logs/routes/exercise_log.routes';
+import myRoutineRoutes from '../../modules/my_routine/routes/my_routine.routes';
 
 const router = Router();
 
@@ -30,5 +32,7 @@ router.use('/master-routine', authenticate, requireAuth, masterRoutinesRoutes);
 router.use('/difficulty-level', authenticate, requireAuth, difficultyLevelRoutes);
 router.use('/exercise', authenticate, requireAuth, exerciseRoutes);
 router.use('/user-routines', authenticate, requireAuth, userRoutinesRoutes);
+router.use('/exercise-logs', authenticate, requireAuth, exerciseLogRoutes);
+router.use('/my-routine', authenticate, requireAuth, myRoutineRoutes);
 
 export default router;

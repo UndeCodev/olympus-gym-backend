@@ -10,7 +10,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     const decoded = tokenService.verifyAccessToken(accessToken);
 
     if (typeof decoded !== 'string' && 'id' in decoded) {
-      res.locals.user = decoded.id;
+      res.locals.user = decoded;
     }
   }
 

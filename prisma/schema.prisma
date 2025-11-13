@@ -32,8 +32,8 @@ model user {
   email                      String                       @unique
   password                   String
   verifyCode                 String?                      @unique
-  profilePictureUrl          String?                      
-  profilePicturePublicId     String?                      
+  profilePictureUrl          String?
+  profilePicturePublicId     String?
   emailVerified              Boolean                      @default(false)
   twoFactorEnabled           Boolean                      @default(false)
   rol                        Rol                          @default(USER)
@@ -41,6 +41,8 @@ model user {
   cart                       cart[]
   reservations               reservation[]
   employee                   employee?
+  difficultyLevel            difficulty_level?            @relation(fields: [difficultyLevelid], references: [id])
+  difficultyLevelid          Int?
   reservation_status_history reservation_status_history[]
   userRoutineAssignments     user_routine_assignment[]
   exerciseLogs               exercise_log[]
@@ -237,6 +239,8 @@ model difficulty_level {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @unique
   exerciseInstructions exercise_instruction[]
+
+  users user[]
 }
 
 model exercise {
@@ -254,7 +258,7 @@ model exercise_group {
   exerciseId    Int
   muscleGroupId Int
   exercise      exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  muscleGroup   muscle_group @relation(fields: [muscleGroupId], references: [id], onDelete: Restrict) 
+  muscleGroup   muscle_group @relation(fields: [muscleGroupId], references: [id], onDelete: Restrict)
 
   @@id([exerciseId, muscleGroupId])
 }
@@ -268,13 +272,13 @@ model exercise_instruction {
   repetitionsMax    Int
   restTimeSeconds   Int
 
-  exercise        exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade) 
-  difficultyLevel difficulty_level @relation(fields: [difficultyLevelId], references: [id], onDelete: Restrict) 
+  exercise        exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  difficultyLevel difficulty_level @relation(fields: [difficultyLevelId], references: [id], onDelete: Restrict)
 
   stepByStepInstructions step_by_step_instruction[]
   importantTips          important_tip[]
 
-  @@unique([exerciseId, difficultyLevelId]) 
+  @@unique([exerciseId, difficultyLevelId])
 }
 
 model step_by_step_instruction {
@@ -335,5 +339,5 @@ model exercise_log {
   user     user     @relation(fields: [userId], references: [id])
   exercise exercise @relation(fields: [exerciseId], references: [id])
 
-  @@unique([userId, exerciseId, date]) 
+  @@unique([userId, exerciseId, date])
 }
