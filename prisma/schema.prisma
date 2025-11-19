@@ -206,7 +206,7 @@ enum ProductStatus {
 enum Rol {
   USER
   MEMBER
-  MOD
+  EMPLOYEE
   ADMIN
 }
 

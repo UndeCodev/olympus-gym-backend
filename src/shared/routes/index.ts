@@ -18,6 +18,8 @@ import userRoutinesRoutes from '../../modules/user_routines/routes/user_routine.
 import exerciseLogRoutes from '../../modules/exercise_logs/routes/exercise_log.routes';
 import myRoutineRoutes from '../../modules/my_routine/routes/my_routine.routes';
 import membershipPlansRoutes from '../../modules/membership_plans/routes/membership_plans.routes';
+import membershipRoutes from '../../modules/memberships/routes/membership.routes';
+import accessControlRoutes from '../../modules/access_control/routes/access_control.routes';
 
 const router = Router();
 
@@ -36,5 +38,7 @@ router.use('/user-routines', authenticate, requireAuth, userRoutinesRoutes);
 router.use('/exercise-logs', authenticate, requireAuth, exerciseLogRoutes);
 router.use('/my-routine', authenticate, requireAuth, myRoutineRoutes);
 router.use('/membership-plans', authenticate, requireAuth, membershipPlansRoutes);
+router.use('/memberships', authenticate, requireAuth, membershipRoutes);
+router.use('/access-control', authenticate, requireAuth, accessControlRoutes);
 
 export default router;
