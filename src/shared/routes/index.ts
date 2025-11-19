@@ -17,6 +17,7 @@ import masterRoutinesRoutes from '../../modules/master_routines/routes/master_ro
 import userRoutinesRoutes from '../../modules/user_routines/routes/user_routine.routes';
 import exerciseLogRoutes from '../../modules/exercise_logs/routes/exercise_log.routes';
 import myRoutineRoutes from '../../modules/my_routine/routes/my_routine.routes';
+import membershipPlansRoutes from '../../modules/membership_plans/routes/membership_plans.routes';
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use('/exercise', authenticate, requireAuth, exerciseRoutes);
 router.use('/user-routines', authenticate, requireAuth, userRoutinesRoutes);
 router.use('/exercise-logs', authenticate, requireAuth, exerciseLogRoutes);
 router.use('/my-routine', authenticate, requireAuth, myRoutineRoutes);
+router.use('/membership-plans', authenticate, requireAuth, membershipPlansRoutes);
 
 export default router;

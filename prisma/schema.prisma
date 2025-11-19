@@ -46,6 +46,8 @@ model user {
   reservation_status_history reservation_status_history[]
   userRoutineAssignments     user_routine_assignment[]
   exerciseLogs               exercise_log[]
+
+  userMemberships user_membership[]
 }
 
 model employee {
@@ -340,4 +342,39 @@ model exercise_log {
   exercise exercise @relation(fields: [exerciseId], references: [id])
 
   @@unique([userId, exerciseId, date])
+}
+
+model membership_plan {
+  id              Int      @id @default(autoincrement())
+  name            String   @unique 
+  description     String?
+  price           Decimal  @db.Decimal(10, 2) 
+  durationMonths  Int      
+  isActive        Boolean  @default(true) 
+  
+  subscriptions   user_membership[]
+
+}
+
+model user_membership {
+  id              Int               @id @default(autoincrement())
+  userId          Int
+  planId          Int
+  startDate       DateTime          @default(now())
+  endDate         DateTime          
+  status          MembershipStatus  @default(ACTIVE)
+  pricePaid       Decimal           @db.Decimal(10, 2) 
+  paymentRef      String?           
+
+  user            user              @relation(fields: [userId], references: [id])
+  plan            membership_plan    @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+}
+
+enum MembershipStatus {
+  ACTIVE    
+  EXPIRED   
+  CANCELLED 
+  PENDING   
 }
